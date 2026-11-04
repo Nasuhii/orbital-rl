@@ -71,12 +71,43 @@ Uzay araçları otonom kenetlenme (RPO) operasyonlarında NASA ve ESA standartla
 
 ---
 
-## 🛠️ 4. Kod Dosyaları Ne İşe Yarar?
+## 🔬 4. 6 Panelli 3D Derinlemesine Vektör ve Dinamik Analizi
+
+3 Boyutlu yörünge mekaniğini ve kontrolcü kararlarını anlamak için üretilen çok açılı telemetri matrisi:
+
+![6 Panelli 3D Derinlemesine Dinamik ve Vektör Analizi](orbital_3d_deep_dive.png)
+
+### 🧭 6 Panelin Mühendislik Anlamı:
+1. **Panel 1 (3D İzometrik Yaklaşma & Vektör Akışı):** Uzay aracının hız vektörlerini (yeşil oklar) ve $\pm 25^\circ$ LOS yaklaşma konisini gösterir.
+2. **Panel 2 (X-Y Düzlemi / Radyal Yerçekimi Gradyanı):** $3n^2 x$ yerçekimi gradyanı ve Coriolis nedeniyle oluşan yanal sapmaların nasıl sönümlendiğini gösterir.
+3. **Panel 3 (Z-Y Düzlemi / Cross-Track Salınımı):** $-n^2 z$ düzlem dışı harmonik salınımın sıfır eksenine nasıl kilitlendiğini gösterir.
+4. **Panel 4 (Faz Portresi / Hız-Mesafe Koridoru):** Mesafe azaldıkça hızın $\tanh$ eğrisini takip ederek $0.05\text{ m/s}$ güvenli liman hızına inişini gösterir.
+5. **Panel 5 (3 Eksenli RCS İtici Ateşleme Profili):** $F_x, F_y, F_z$ iticilerinin Newton cinsinden anlık ateşleme değerleri.
+6. **Panel 6 (Adım Başına RL Ödül Akışı):** Asimptotik üstel ödülün limana yaklaştıkça ajana verdiği yüksek pozitif çekim sinyali.
+
+---
+
+## 🎮 5. İnteraktif 3D Web Simülatörü (Mission Control)
+
+Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüzü:
+- **Dosya:** [docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html)
+- **Canlı Web Adresi:** `http://localhost:8000/Areas/Software/orbital-rl/docking_visualizer.html` 🌐
+- **Özellikler:** 
+  - ⚡ **DUAL RACE Modu:** Yeşil (Asymptotic) ve Kırmızı (Naive) gemileri yan yana yarıştırarak donma patolojisini gözle görme.
+  - 🏹 **Canlı Vektör Okları:** Mavi hız oku ($\vec{v}$) ve Turuncu RCS itki oku ($\vec{F}$).
+  - 🎥 **4 Farklı Kamera Modu:** 360° Yörünge, Takip Kamerası, Docking Port Kamerası ve Kokpit HUD (Pilot FPV).
+  - ⏱️ **Zaman Kontrolü:** 0.25x Ağır Çekim, Adım Adım (Frame-by-frame) oynatma.
+
+---
+
+## 🛠️ 6. Kod Dosyaları Ne İşe Yarar?
 
 - **[orbital_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_env.py):** Uzay fiziğini (3D Clohessy-Wiltshire diferansiyel denklemleri) 4. derece Runge-Kutta (RK4) sayısal integratörü ile saniye saniye çözen Gymnasium ortamıdır.
 - **[reward_shaping.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/reward_shaping.py):** Ajanın hovering yapmasını engelleyen matematiksel ödül formüllerinin bulunduğu dosyadır.
 - **[simulate_demo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/simulate_demo.py):** İki ajanı aynı başlangıç noktasından başlatıp yarıştırır ve nominal görseli üretir.
 - **[stress_test_monte_carlo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/stress_test_monte_carlo.py):** Sensör gürültüsü, itici bozulması, yörüngesel şok ve kaçış rotasını içeren 30 uçuşluk Monte Carlo dayanıklılık stres testidir.
+- **[visualize_3d_flight.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/visualize_3d_flight.py):** 6 panelli derinlemesine 3D dinamik, faz portresi ve itki vektörü analiz grafiğini üretir.
+- **[docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html):** Three.js ile geliştirilen interaktif 3D Mission Control ve Dual Race web arayüzüdür.
 - **[train_ppo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo.py):** Stable-Baselines3 kütüphanesiyle PPO yapay zeka modelini eğiten eğitim kodudur.
 - **[evaluate_and_plot.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/evaluate_and_plot.py):** Farklı açılardan 8 ayrı uçuş testi yaparak başarı tablosunu ekrana basar.
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbital-RL: 3D Hassas Kenetlenme & GN&C Güvenlik Simülatörü 🛰️</title>
+    <title>Orbital-RL: 3D Hassas Kenetlenme & Port Arayüzü Simülatörü 🛰️</title>
     <!-- Three.js ve OrbitControls CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -13,8 +13,8 @@
     <style>
         :root {
             --bg-base: #050811;
-            --panel-bg: rgba(9, 15, 28, 0.88);
-            --panel-border: rgba(56, 189, 248, 0.22);
+            --panel-bg: rgba(9, 15, 28, 0.90);
+            --panel-border: rgba(56, 189, 248, 0.24);
             --cyan: #38bdf8;
             --green: #10b981;
             --amber: #f59e0b;
@@ -283,6 +283,7 @@
         .text-green { color: var(--green); }
         .text-amber { color: var(--amber); }
         .text-red   { color: var(--red); }
+        .text-cyan  { color: var(--cyan); }
 
         .control-row {
             display: flex;
@@ -323,7 +324,6 @@
             scrollbar-color: var(--panel-border) transparent;
         }
 
-        /* Osiloskop Kanvasları */
         .scope-container {
             position: relative;
             background: #040711;
@@ -397,7 +397,7 @@
             outline: none;
         }
 
-        /* Kokpit & Burun Kamerası Hedef Nişangahı (Reticle) */
+        /* Kokpit / Burun Kamerası Hedef Nişangahı (Reticle) */
         #docking-reticle {
             position: absolute;
             top: 50%;
@@ -448,7 +448,6 @@
             transition: border-color 0.2s;
         }
 
-        /* Geçmiş Tablosu */
         .history-table {
             width: 100%;
             border-collapse: collapse;
@@ -527,7 +526,7 @@
                 <div class="metric-box">
                     <span class="metric-title">Port Mesafesi (|d|):</span>
                     <div class="metric-val">
-                        <span id="val-dist" class="text-green">25.00 m</span>
+                        <span id="val-dist" class="text-cyan">25.00 m</span>
                         <span class="metric-thresh">&le; 0.05 m</span>
                     </div>
                 </div>
@@ -619,7 +618,6 @@
 
     <!-- 3. SAĞ PANEL: CBF GÜVENLİK KALKANI, OSİLOSKOPLAR & LOGLAR -->
     <div id="right-panel" class="hud-panel">
-        <!-- A. CBF-QP Güvenlik Kalkanı -->
         <div>
             <div class="section-title">
                 <span>CBF-QP Güvenlik Kalkanı</span>
@@ -644,7 +642,6 @@
             </div>
         </div>
 
-        <!-- B. PWPF Canlı Osiloskop Grafikleri (X, Y, Z) -->
         <div>
             <div class="section-title">
                 <span>PWPF İtici Osiloskobu (X, Y, Z)</span>
@@ -664,7 +661,6 @@
             </div>
         </div>
 
-        <!-- C. Bölüm Geçmişi Tablosu -->
         <div>
             <div class="section-title">
                 <span>Bölüm Geçmişi Tablosu</span>
@@ -767,14 +763,11 @@
         const PROBE_OFFSET_Y  = -1.6;
 
         // Durum Vektörü: [x, y, z, vx, vy, vz] (Kapsül merkezinin konumu)
-        // Başlangıç: Kapsül merkezi Y=26.0m -> Prob ucu Y = 26.0 - 1.6 = 24.4m (Receptor'a 22m mesafe)
         let state = [0.8, 26.0, 0.6, 0.0, -0.25, 0.0];
         let missionTime = 0.0;
         let isRunning = true;
         let isDockedLocked = false;
-        let isCrashedBounced = false;
         let episodeNumber = 1;
-        let cumulativeReward = 0.0;
 
         // Görsel Teşhis Anahtarları
         let isXray = false;
@@ -792,18 +785,13 @@
         // ==========================================
         // 2. KONTROLCÜ VE POLİTİKA (PLUGGABLE RL POLICY)
         // ==========================================
-        /**
-         * PPO RL Ajan Politikası (Eğitilmiş model buraya bağlanabilir)
-         */
         function agentPolicy(obs) {
             let dist = obs.d;
             
-            // Hedefe yaklaştıkça güvenli hız profili
             let targetSpeed = aggressiveMode ? 
                 Math.min(1.4, 0.25 + 0.9 * Math.tanh(dist / 10.0)) :
                 Math.min(0.55, 0.035 + 0.40 * Math.tanh(dist / 14.0));
 
-            // Hedef: Prob ucunun (Y=2.4) receptor oturma tabanına gitmesi
             let dirX = -obs.rx / (dist + 1e-5);
             let dirY = -obs.ry / (dist + 1e-5);
             let dirZ = -obs.rz / (dist + 1e-5);
@@ -812,7 +800,6 @@
             let desiredVy = dirY * targetSpeed;
             let desiredVz = dirZ * targetSpeed;
 
-            // Coriolis kuvveti kompanzasyonu
             let coriolisFx = -2.0 * n * obs.vy * chaserMass;
             let coriolisFy =  2.0 * n * obs.vx * chaserMass;
 
@@ -904,7 +891,7 @@
         }
 
         // ==========================================
-        // 5. 3D CW RK4 FİZİK ENTEGRASYONU & ÇARPIŞMA/KENETLENME
+        // 5. 3D CW RK4 FİZİK ENTEGRASYONU
         // ==========================================
         function cwDerivatives(s, F) {
             let x = s[0], y = s[1], z = s[2];
@@ -927,13 +914,12 @@
         }
 
         // ==========================================
-        // 6. THREE.JS 3D SAHNE & YÜKSEK HASSASİYETLİ PORT GEOMETRİSİ
+        // 6. THREE.JS 3D SAHNE & HASSAS PORT GEOMETRİSİ
         // ==========================================
         const canvas = document.getElementById('webgl-canvas');
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x050811, 0.0035);
 
-        // Kesit Görünüm Düzlemi (Z=0 düzleminde ortadan ikiye bölme)
         const crossSectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1500);
@@ -948,7 +934,6 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // Işıklandırma
         scene.add(new THREE.AmbientLight(0xffffff, 0.45));
         const sunLight = new THREE.DirectionalLight(0xffffff, 1.4);
         sunLight.position.set(40, 60, 40);
@@ -958,7 +943,6 @@
         earthBounce.position.set(0, -60, 0);
         scene.add(earthBounce);
 
-        // Yıldızlar & Dünya Küresi
         const starGeo = new THREE.BufferGeometry();
         const starPos = new Float32Array(3000 * 3);
         for (let i = 0; i < 3000 * 3; i += 3) {
@@ -976,7 +960,6 @@
         earthMesh.position.set(0, -280, 0);
         scene.add(earthMesh);
 
-        // Tüm materyal listesi (X-Ray ve Wireframe için)
         const managedMaterials = [];
         function registerMaterial(mat) {
             managedMaterials.push(mat);
@@ -988,26 +971,23 @@
         // ----------------------------------------------------
         const stationGroup = new THREE.Group();
 
-        // 1. Ana Silindirik Gövde (X ekseni boyunca)
         const stationBodyMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xd8e2dc, metalness: 0.8, roughness: 0.25 }));
         const stationBody = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 6.0, 32), stationBodyMat);
         stationBody.rotation.z = Math.PI / 2;
         stationGroup.add(stationBody);
 
-        // Güneş Panelleri
         const solarMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.9, roughness: 0.1 }));
         const sp1 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 4.0, 0.08), solarMat); sp1.position.set(0, 0, 4.5);
         const sp2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 4.0, 0.08), solarMat); sp2.position.set(0, 0, -4.5);
         stationGroup.add(sp1); stationGroup.add(sp2);
 
-        // 2. DIŞARI ÇIKINTI YAPAN KENETLENME TÜNELİ (Y=1.4m ile 2.4m arası)
+        // Kenetlenme Tüneli (Y=1.4m ile 2.4m arası)
         const collarMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.85, roughness: 0.3 }));
         const dockingTunnel = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 1.0, 32), collarMat);
         dockingTunnel.position.set(0, 1.9, 0);
         stationGroup.add(dockingTunnel);
 
-        // 3. RECEPTOR DİŞİ HUNİ (FEMALE CONE FUNNEL: Y=2.4m ile 2.9m arası)
-        // Taban yarıçapı: 0.22m, Ağız yarıçapı: 0.58m
+        // Receptor Dişi Huni (Y=2.4m ile 2.9m arası)
         const funnelMat = registerMaterial(new THREE.MeshStandardMaterial({
             color: 0x334155,
             metalness: 0.9,
@@ -1015,23 +995,21 @@
             side: THREE.DoubleSide
         }));
         const receptorFunnel = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.22, 0.5, 32, 1, true), funnelMat);
-        receptorFunnel.position.set(0, 2.65, 0); // Merkez Y = 2.65m
+        receptorFunnel.position.set(0, 2.65, 0);
         stationGroup.add(receptorFunnel);
 
-        // Receptor Oturma Tabanı (Dipten durdurucu halka: Y=2.4m)
         const seatRingMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.8 }));
         const seatRing = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.04, 16, 32), seatRingMat);
         seatRing.rotation.x = Math.PI / 2;
         seatRing.position.set(0, RECEPTOR_SEAT_Y, 0);
         stationGroup.add(seatRing);
 
-        // Receptor Giriş Ağzı Halkası (Y=2.9m)
         const rimRing = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.04, 16, 32), seatRingMat);
         rimRing.rotation.x = Math.PI / 2;
         rimRing.position.set(0, RECEPTOR_RIM_Y, 0);
         stationGroup.add(rimRing);
 
-        // 4 Kilit Mandalı (Capture Latches - Rim etrafında 90 derece)
+        // 4 Kilit Mandalı (Capture Latches)
         const latchGroup = new THREE.Group();
         const latchClaws = [];
         const latchMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 }));
@@ -1050,16 +1028,15 @@
         scene.add(stationGroup);
 
         // ----------------------------------------------------
-        // B. KOVALAYICI UZAY ARACI (CHASER) & ERKEK PROB (MALE PROBE)
+        // B. KOVALAYICI UZAY ARACI (CHASER) & ERKEK PROB
         // ----------------------------------------------------
         const chaserGroup = new THREE.Group();
 
-        // Kapsül ve Servis Modülü
         const chaserMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 0.5, roughness: 0.3 }));
         const smMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 }));
 
         const capsuleNose = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.9, 24), chaserMat);
-        capsuleNose.rotation.x = Math.PI / 2; // Burnunu -Y yönüne çevir
+        capsuleNose.rotation.x = Math.PI / 2;
         capsuleNose.position.set(0, -0.4, 0);
         chaserGroup.add(capsuleNose);
 
@@ -1067,25 +1044,18 @@
         smCyl.position.set(0, 0.4, 0);
         chaserGroup.add(smCyl);
 
-        // KENETLENME PROBU (MALE PROBE ASSEMBLY: Y=-0.8m ile -1.6m arası)
-        // 1. Prob Şaftı (Metalik İnce Çubuk)
+        // Prob Şaftı & Koni Başı
         const probeShaftMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
         const probeShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.65, 16), probeShaftMat);
         probeShaft.position.set(0, -1.15, 0);
         chaserGroup.add(probeShaft);
 
-        // 2. Prob Koni Ucu (Male Funnel Cone: Y=-1.45m ile -1.6m)
-        // Uç çapı 0.18m (Receptor tabanına tam oturacak boyutta)
         const probeHeadMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.9, roughness: 0.2 }));
         const probeHead = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.32, 24), probeHeadMat);
-        probeHead.position.set(0, -1.45, 0); // Sivri uç Y = -1.6m
+        probeHead.position.set(0, -1.45, 0);
         chaserGroup.add(probeHead);
 
         scene.add(chaserGroup);
-
-        // Yönelim ve Vektör Okları
-        const normalStationArrow = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, RECEPTOR_SEAT_Y, 0), 1.5, 0x10b981, 0.3, 0.15);
-        scene.add(normalStationArrow);
 
         // ----------------------------------------------------
         // C. CANLI OSİLOSKOP ÇİZİMLERİ (HTML5 CANVAS)
@@ -1109,7 +1079,6 @@
 
             const step = w / (scopeBufferSize - 1);
 
-            // 1. Sürekli Komut (Cyan)
             ctx.strokeStyle = '#38bdf8';
             ctx.lineWidth = 1.2;
             ctx.beginPath();
@@ -1119,7 +1088,6 @@
             }
             ctx.stroke();
 
-            // 2. Darbe Treni (Yeşil / Kırmızı Kare Dalga)
             ctx.strokeStyle = '#10b981';
             ctx.lineWidth = 1.8;
             ctx.beginPath();
@@ -1138,64 +1106,45 @@
             if (isDockedLocked) return;
 
             for (let s = 0; s < steps; s++) {
-                // Prob ucu konumu: (state[0], state[1] + PROBE_OFFSET_Y, state[2])
                 let probeX = state[0];
                 let probeY = state[1] + PROBE_OFFSET_Y;
                 let probeZ = state[2];
 
-                // Receptor tabanı: (0, RECEPTOR_SEAT_Y, 0)
                 let rx = probeX - 0.0;
                 let ry = probeY - RECEPTOR_SEAT_Y;
                 let rz = probeZ - 0.0;
                 let portDist = Math.hypot(rx, ry, rz);
 
                 let vx = state[3], vy = state[4], vz = state[5];
-                let currentSpeed = Math.hypot(vx, vy, vz);
-                let closingSpeed = -vy; // İstasyona doğru yaklaşma hızı
+                let closingSpeed = -vy;
                 let lateralOffset = Math.hypot(rx, rz);
-
-                // Yüzey normalleri arasındaki açı hatası (Açısal sapma)
-                // Kapsül burnu hedef Y=2.4'e yöneliktir
                 let angleErrorDeg = Math.atan2(lateralOffset, Math.max(0.1, ry)) * (180.0 / Math.PI);
 
-                // Otomatik Yavaşlama (Son 2 metrede hassas yaklaşım)
                 if (autoSlowmoActive && portDist < 2.5) {
                     simSpeed = Math.max(0.08, portDist * 0.15);
                     document.getElementById('slider-sim-speed').value = simSpeed.toFixed(2);
                     document.getElementById('lbl-speed').textContent = simSpeed.toFixed(2) + 'x';
                 }
 
-                // 1. RL Ajan Komutu & CBF Güvenlik Kalkanı
                 let obs = { rx, ry, rz, vx, vy, vz, d: portDist, closingSpeed };
                 let agentCmd = agentPolicy(obs);
                 let continuousThrust = agentCmd.map(u => u * nominalThrust);
                 let safeThrust = applyCBFSafetyFilter(state, continuousThrust, portDist);
-
-                // 2. PWPF İtici Modülasyonu
                 let realizedForces = updatePWPF(safeThrust, DT);
 
-                // 3. Fiziği RK4 ile İlerlet
                 state = rk4Step(state, realizedForces, DT);
                 missionTime += DT;
 
-                // 4. TEMAS VE KENETLENME KONTROLÜ (GÖVDEYE ASLA BATMAZ!)
                 let nextProbeY = state[1] + PROBE_OFFSET_Y;
 
-                // Port Seating Tabanına Ulaşıldı (d <= 0.04m veya prob tabana temas etti)
+                // Port Tabanına Temas (Fiziksel Durma)
                 if (nextProbeY <= RECEPTOR_SEAT_Y) {
-                    // Kapsülü tam temas sınırında durdur (Geometrik Girişi Engelle)
                     state[1] = RECEPTOR_SEAT_Y - PROBE_OFFSET_Y;
 
-                    // Başarı Kriterleri:
-                    // 1) Kapanma hızı < 0.10 m/s
-                    // 2) Yanal sapma < 0.10 m
-                    // 3) Açı hatası < 5.0 derece
                     if (closingSpeed <= 0.10 && lateralOffset <= 0.10 && angleErrorDeg <= 5.0) {
-                        // BAŞARILI KENETLENME
                         isDockedLocked = true;
-                        state[3] = 0; state[4] = 0; state[5] = 0; // Hızı sıfırla
+                        state[3] = 0; state[4] = 0; state[5] = 0;
 
-                        // Kilit mandallarını kapat (İçe kilitleniş animasyonu)
                         latchClaws.forEach(c => {
                             c.material.color.setHex(0x10b981);
                             c.scale.set(1.2, 0.9, 1.2);
@@ -1206,18 +1155,14 @@
                         logEpisodeFinish('KENETLENDİ', 'pill-docked', lateralOffset);
                         break;
                     } else {
-                        // ÇARPIŞMA: Kriterler sağlanamadı, araç geri teper (Restitution)
                         document.getElementById('docking-status-banner').className = 'docking-status-box status-crash';
-                        document.getElementById('docking-status-banner').innerHTML = '💥 ÇARPIŞMA (HIZ VEYA SAPMA LİMİTİ AŞILDI!)';
-
-                        // Geri sekme impulsu (Elastic rebound)
-                        state[4] = Math.max(0.12, Math.abs(vy) * 0.4); // Geri püskürt
+                        document.getElementById('docking-status-banner').innerHTML = '💥 ÇARPIŞMA (HIZ VEYA SAPMA AŞILDI!)';
+                        state[4] = Math.max(0.14, Math.abs(vy) * 0.45);
                         logEpisodeFinish('ÇARPIŞMA', 'pill-crash', lateralOffset);
                         break;
                     }
                 }
 
-                // Gövde-Gövde Çarpışma Kutusu (Port dışı herhangi bir temas)
                 if (Math.abs(state[0]) > 2.0 && state[1] < 2.0) {
                     document.getElementById('docking-status-banner').className = 'docking-status-box status-crash';
                     document.getElementById('docking-status-banner').innerHTML = '💥 GÖVDE ÇARPIŞMASI (HULL COLLISION)';
@@ -1225,7 +1170,6 @@
                     break;
                 }
 
-                // Yumuşak Yakalama Bölgesi (d < 0.5m)
                 if (portDist < 0.5) {
                     document.getElementById('docking-status-banner').className = 'docking-status-box status-soft';
                     document.getElementById('docking-status-banner').innerHTML = '🧲 YUMUŞAK YAKALAMA (HUNİ İÇİNE GİRİŞ)';
@@ -1234,7 +1178,6 @@
                     document.getElementById('docking-status-banner').innerHTML = '🟡 KORİDORDA YAKLAŞMA (APPROACH)';
                 }
 
-                // Osiloskop tamponlarını güncelle
                 ['x', 'y', 'z'].forEach((axis, idx) => {
                     scopeData[axis].cmd.shift(); scopeData[axis].cmd.push(agentCmd[idx]);
                     scopeData[axis].flt.shift(); scopeData[axis].flt.push(pwpfFilterState[idx]);
@@ -1258,7 +1201,7 @@
         }
 
         // ==========================================
-        // 8. CANLI TELEMETRİ & RENK EŞİKLERİ
+        // 8. CANLI TELEMETRİ GÜNCELLEMESİ
         // ==========================================
         function updateUI() {
             let probeX = state[0];
@@ -1273,33 +1216,28 @@
             let lateralOffset = Math.hypot(rx, rz);
             let angleErrorDeg = Math.atan2(lateralOffset, Math.max(0.1, ry)) * (180.0 / Math.PI);
 
-            // 1. Port Mesafesi (|d|)
             const elDist = document.getElementById('val-dist');
             elDist.textContent = `${portDist.toFixed(2)} m`;
             elDist.className = (portDist <= 0.05) ? 'text-green' : (portDist <= 0.5 ? 'text-amber' : 'text-cyan');
 
-            // 2. Kapanma Hızı (v)
             const elSpeed = document.getElementById('val-speed');
             elSpeed.textContent = `${closingSpeed.toFixed(3)} m/s`;
             if (closingSpeed <= 0.10) elSpeed.className = 'text-green';
             else if (closingSpeed <= 0.15) elSpeed.className = 'text-amber';
             else elSpeed.className = 'text-red';
 
-            // 3. Yanal Sapma (Delta lat)
             const elLat = document.getElementById('val-lat');
             elLat.textContent = `${lateralOffset.toFixed(3)} m`;
             if (lateralOffset <= 0.10) elLat.className = 'text-green';
             else if (lateralOffset <= 0.20) elLat.className = 'text-amber';
             else elLat.className = 'text-red';
 
-            // 4. Açı Hatası (Theta)
             const elAng = document.getElementById('val-ang');
             elAng.textContent = `${angleErrorDeg.toFixed(1)}°`;
             if (angleErrorDeg <= 5.0) elAng.className = 'text-green';
             else if (angleErrorDeg <= 10.0) elAng.className = 'text-amber';
             else elAng.className = 'text-red';
 
-            // Reticle kutucuk rengi
             const reticleBox = document.getElementById('reticle-box');
             if (lateralOffset <= 0.10 && angleErrorDeg <= 5.0) reticleBox.style.borderColor = 'var(--green)';
             else if (lateralOffset <= 0.20) reticleBox.style.borderColor = 'var(--amber)';
@@ -1316,13 +1254,12 @@
         }
 
         // ==========================================
-        // 9. GÖRSEL TEŞHİS ARAÇLARI (X-RAY, WIREFRAME, KESİT)
+        // 9. GÖRSEL TEŞHİS ARAÇLARI
         // ==========================================
         function toggleXray() {
             isXray = !isXray;
             const btn = document.getElementById('btn-xray');
             btn.className = isXray ? 'btn-action active-toggle' : 'btn-action';
-
             managedMaterials.forEach(m => {
                 m.transparent = true;
                 m.opacity = isXray ? 0.25 : 1.0;
@@ -1341,15 +1278,11 @@
             isCrossSection = !isCrossSection;
             const btn = document.getElementById('btn-clip');
             btn.className = isCrossSection ? 'btn-action active-toggle' : 'btn-action';
-
-            // Uzunlamasına ikiye bölme düzlemi
             managedMaterials.forEach(m => {
                 m.clippingPlanes = isCrossSection ? [crossSectionPlane] : [];
                 m.clipShadows = true;
             });
-
             if (isCrossSection) {
-                // Kesiti net görmek için kamerayı tam yandan profile al
                 camera.position.set(0, 3.2, 5.0);
                 controls.target.set(0, 2.6, 0);
             }
@@ -1391,7 +1324,6 @@
                 camera.position.set(12, 14, 28);
                 controls.target.set(0, 0, 0);
             } else if (val === 'docking') {
-                // Kenetlenme portunun hemen önünde yakın plan izleme
                 camera.position.set(1.5, 3.8, 2.5);
                 controls.target.set(0, 2.65, 0);
             } else if (val === 'chase') {
@@ -1402,8 +1334,6 @@
 
         function resetSimulation(randomized = false) {
             isDockedLocked = false;
-            isCrashedBounced = false;
-
             latchClaws.forEach(c => {
                 c.material.color.setHex(0xf59e0b);
                 c.scale.set(1, 1, 1);
@@ -1430,7 +1360,7 @@
         }
 
         // ==========================================
-        // 10. ANA ANİMASYON & RENDER DÖNGÜSÜ
+        // 10. ANA ANİMASYON DÖNGÜSÜ
         // ==========================================
         let lastFrameTime = performance.now();
 
@@ -1446,16 +1376,13 @@
                 stepSimulation(stepsToRun);
             }
 
-            // Kapsülü Konumlandır
             chaserGroup.position.set(state[0], state[1], state[2]);
 
-            // Kamera Takip Modları
             let activeCam = document.getElementById('select-cam').value;
             if (activeCam === 'chase') {
                 camera.position.set(state[0] + 3, state[1] + 7, state[2] + 4);
                 controls.target.set(state[0], state[1], state[2]);
             } else if (activeCam === 'fpv') {
-                // Kapsülün burnundaki pilot kamerası (Porta doğru nişan alır)
                 camera.position.set(state[0], state[1] + PROBE_OFFSET_Y + 0.2, state[2]);
                 camera.lookAt(0, RECEPTOR_SEAT_Y, 0);
                 controls.target.set(0, RECEPTOR_SEAT_Y, 0);
@@ -1472,7 +1399,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Başlat
         resetSimulation(false);
         animate(performance.now());
     </script>

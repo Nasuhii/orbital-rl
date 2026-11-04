@@ -108,4 +108,7 @@ def evaluate_policy(model_path=None, num_episodes=10, use_naive=False):
 
 
 if __name__ == "__main__":
-    evaluate_policy(use_naive=False, num_episodes=8)
+    trained_model = os.path.join(os.path.dirname(__file__), "models", "ppo_orbital_asymptotic_shaped.zip")
+    if not os.path.exists(trained_model):
+        trained_model = None
+    evaluate_policy(model_path=trained_model, use_naive=False, num_episodes=8)

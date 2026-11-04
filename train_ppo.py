@@ -60,6 +60,12 @@ def main():
     raw_env = OrbitalDockingEnv(reward_shaper=reward_shaper)
     env = Monitor(raw_env, filename=os.path.join(log_dir, "train_monitor"))
 
+    try:
+        import tensorboard
+        tb_log = os.path.join(log_dir, "tb")
+    except ImportError:
+        tb_log = None
+
     # 2. PPO Model Konfigürasyonu
     # Uzay aracı itkileri için sürekli eylem uzayına (continuous action space)
     # uygun hiperparametreler:
@@ -75,7 +81,7 @@ def main():
         clip_range=0.2,
         ent_coef=0.005,
         verbose=1,
-        tensorboard_log=os.path.join(log_dir, "tb")
+        tensorboard_log=tb_log
     )
 
     # 3. Modeli Eğit

@@ -109,7 +109,68 @@ Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüz
 - **[visualize_3d_flight.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/visualize_3d_flight.py):** 6 panelli derinlemesine 3D dinamik, faz portresi ve itki vektörü analiz grafiğini üretir.
 - **[docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html):** Three.js ile geliştirilen interaktif 3D Mission Control ve Dual Race web arayüzüdür.
 - **[train_ppo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo.py):** Stable-Baselines3 kütüphanesiyle PPO yapay zeka modelini eğiten eğitim kodudur.
+- **[train_ppo_pbrs.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_pbrs.py):** Ng et al. (1999) Potansiyel Bazlı Ödül Şekillendirme (PBRS) teorisiyle hovering açığını çözen PPO eğitim scriptidir.
+- **[train_ppo_mujoco.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_mujoco.py):** DeepMind MuJoCo fizik motoru ve Gymnasium v1.0+ üzerinde PPO ajanını eğiten scripttir.
+- **[run_rl_experiments.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/run_rl_experiments.py):** Naive RL, Shaped PPO, Safe CBF-QP ve MuJoCo modellerini 15 Monte Carlo uçuşunda yarıştırıp telemetri grafiklerini üreten master kıyaslama motorudur.
+- **[orbital_mujoco_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_mujoco_env.py):** MuJoCo rijit gövde temas fiziğini 3D Clohessy-Wiltshire kuvvetleriyle birleştiren resmi Gymnasium ortamıdır.
+- **[orbital_docking.xml](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_docking.xml):** Hedef istasyon, çıkıntılı dişi kenetlenme hunisi ve 6-DOF serbest eklemli (freejoint) kovalayıcı uzay aracı MuJoCo MJCF model tanımıdır.
 - **[evaluate_and_plot.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/evaluate_and_plot.py):** Farklı açılardan 8 ayrı uçuş testi yaparak başarı tablosunu ekrana basar.
+
+---
+
+## 🔬 7. Kapsamlı RL Sonuçları, Deneyler ve Karşılaştırma Raporu
+
+15 farklı rastgele Monte Carlo uçuş koşulunda ($15 - 25\text{ m}$ mesafe, yanal sapmalar ve kaçış hızları) test edilen 4 farklı yaklaşımın sayısal sonuçları:
+
+![Orbital-RL Gelişmiş Algoritma ve Simülasyon Kıyaslama Raporu](rl_docking_experiments_overview.png)
+
+### 📊 Master Kıyaslama Tablosu (15 Monte Carlo Uçuşu)
+
+| Model / Politika Mimarisi | Başarı Oranı (%) | Hovering (Asılı Kalma) | Kaza / Çarpışma | Ortalama $\Delta v$ (Yakıt) | Son Temas Hızı | Durum Özeti |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **1. Naive RL (Doğrusal Ödül)** | `%0.0` 🔴 | `%100.0` 🔴 | `%0.0` 🟢 | `0.50 m/s` | `0.000 m/s` | Hedefe 3m kala durup pozitif ödül topladı (Hovering). |
+| **2. Shaped PPO (30k Adım)** | `%0.0` 🔴 | `%100.0` 🔴 | `%0.0` 🟢 | `5.30 m/s` | `0.141 m/s` | Yaklaştı ancak emniyet kalkanı olmadan limana girmeyi geciktirdi. |
+| **3. Safe CBF-QP (PBRS + Kalkan)** | **`%100.0`** 🟢 | **`%0.0`** 🟢 | **`%0.0`** 🟢 | **`0.77 m/s`** ⚡ | **`0.054 m/s`** 🟢 | **Kusursuz Yumuşak Kenetlenme** ($\le 0.06\text{ m/s}$ mandal sınırı içinde). |
+| **4. DeepMind MuJoCo Sim** | `%0.0` ⚠️ | `%93.3` ⏱️ | `%6.7` 💥 | `5.03 m/s` | `0.535 m/s` | Rijit cisim çarpışması ve $3n^2x$ radyal yörünge eğilimi gözlemlendi. |
+
+---
+
+### 🛡️ 8. Control Barrier Function (CBF-QP) Güvenlik Kalkanı Telemetrisi
+
+![CBF-QP Güvenlik Kalkanı Canlı Telemetri ve Eyleyici İtki Analizi](rl_cbf_shield_telemetry.png)
+
+#### 🔍 Emniyet Kalkanının 3 Kritik Mühendislik İşlevi:
+1. **Bariyer Koşulu:** $h(x) = v_{\text{safe}}^2(d) - \|v\|^2 \ge 0$. Araç limana yaklaştıkça izin verilen hız $\tanh$ eğrisiyle düşürülür.
+2. **Minimal Müdahale QP:** Ajan nominal olarak limitin üzerinde itki istese bile, QP filtresi komutu anında güvenli alt-uzaya projekte eder (`u* = u_nom - correction`).
+3. **Sıfır Çarpışma Garantisi:** Simülasyon boyunca $h(x) \ge 0$ kısıtı hiçbir zaman ihlal edilmemiş, son temas hızı $0.054\text{ m/s}$ seviyesinde sabitlenmiştir.
+
+---
+
+## 🃏 Anki Kartları
+
+START
+Temel
+TARGET DECK: data
+Ön: Orbital-RL: Takviyeli Öğrenmede (RL) "Hovering (Yerinde Sayma / Havada Asılı Kalma)" patolojisi nedir ve nasıl ortaya çıkar?
+Geri: Ajanın, hedefe yaklaştıkça çarpışma cezasından (-100 veya -500) kaçınmak ve her adımda pozitif yakınlık ödülü (örn: exp(-d)) toplamak için hedefin 2-3 metre önünde sıfır hızla beklemesi durumudur.<br>Ajan yerinde sayarak sonsuz pozitif adım ödülü süzer (Reward Hacking / Exploitation) ve limana girmeyi reddeder.
+Tags: from_obsidian, orbital_rl, reinforcement_learning, reward_shaping
+END
+
+START
+Temel
+TARGET DECK: data
+Ön: Ng et al. (1999) Potansiyel Bazlı Ödül Şekillendirme (PBRS) teoremi uzay aracı kenetlenmesindeki Hovering problemini nasıl çözer?
+Geri: PBRS ödül formülü: $F(s, a, s') = \gamma \Phi(s') - \Phi(s)$<br>Ajan yerinde saydığında ($\Phi(s') = \Phi(s)$), ödül $(\gamma - 1)\Phi(s)$ haline gelir.<br>$\gamma < 1$ (örn: 0.99) olduğundan, $(\gamma - 1) = -0.01 < 0$ olur ve ajan durduğu her saniye negatif ceza alır.<br>Pozitif ödül kazanmanın tek yolu hedefe doğru aktif olarak ilerlemektir ($\Phi(s') > \Phi(s)/\gamma$).
+Tags: from_obsidian, orbital_rl, pbrs, math, reinforcement_learning
+END
+
+START
+Temel
+TARGET DECK: data
+Ön: Control Barrier Function (CBF-QP) uzay aracı kenetlenmesinde RL ajanını nasıl korur?
+Geri: CBF güvenlik kısıtı: $h(x) = v_{\text{safe}}^2(d) - \|v\|^2 \ge 0$<br>İleri adım türev şartı: $\dot{h} + \alpha h \ge 0$<br>Ajanın sinir ağı (PPO) tehlikeli veya yüksek hızlı bir itki komutu verse bile, analitik Quadratic Programming (QP) güvenlik filtresi komutu kısıt sınırına projekte ederek kaza yapmasını imkansız kılar.
+Tags: from_obsidian, orbital_rl, cbf_qp, safe_rl, gnc
+END
 
 ---
 

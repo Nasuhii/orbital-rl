@@ -131,7 +131,25 @@ Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüz
 | **1. Naive RL (Doğrusal Ödül)** | `%0.0` 🔴 | `%100.0` 🔴 | `%0.0` 🟢 | `0.50 m/s` | `0.000 m/s` | Hedefe 3m kala durup pozitif ödül topladı (Hovering). |
 | **2. Shaped PPO (30k Adım)** | `%0.0` 🔴 | `%100.0` 🔴 | `%0.0` 🟢 | `5.30 m/s` | `0.141 m/s` | Yaklaştı ancak emniyet kalkanı olmadan limana girmeyi geciktirdi. |
 | **3. Safe CBF-QP (PBRS + Kalkan)** | **`%100.0`** 🟢 | **`%0.0`** 🟢 | **`%0.0`** 🟢 | **`0.77 m/s`** ⚡ | **`0.054 m/s`** 🟢 | **Kusursuz Yumuşak Kenetlenme** ($\le 0.06\text{ m/s}$ mandal sınırı içinde). |
-| **4. DeepMind MuJoCo Sim** | `%0.0` ⚠️ | `%93.3` ⏱️ | `%6.7` 💥 | `5.03 m/s` | `0.535 m/s` | Rijit cisim çarpışması ve $3n^2x$ radyal yörünge eğilimi gözlemlendi. |
+| **4. Integrated Safe-GNC (MuJoCo)** | **`%100.0`** 🟢 | **`%0.0`** 🟢 | **`%0.0`** 🟢 | **`0.94 m/s`** ⚡ | **`0.044 m/s`** 🟢 | **DeepMind MuJoCo'da 30/30 Kusursuz Kenetlenme!** ($d \le 0.15\text{m}$, $v \le 0.06\text{m/s}$). |
+
+---
+
+### 🚀 9. MuJoCo 30 Uçuşluk Monte Carlo Master Doğrulaması (%100 Başarı)
+
+![MuJoCo 30 Uçuşluk Monte Carlo Performans Karşılaştırması](mujoco_30_monte_carlo_benchmark.png)
+
+#### 📊 30 Uçuşluk MuJoCo Karşılaştırma Tablosu:
+
+| Mimari / Algoritma Modeli | Başarı Oranı (%) | Hovering / Zaman Aşımı | Kaza / Çarpışma | Ortalama Yakıt ($\Delta v$) | Ortalama Son Hız | Güvenlik Durumu |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Pure PPO (Kalkansız + PWPF)** | `%0.0` 🔴 | `%43.3` (13/30) | **`%56.7` (17/30)** 💥 | `2.68 m/s` | `1.409 m/s` | Kalkan olmadığı için 17 uçuşta limana çarptı. |
+| **PPO + CBF-QP (Ham Sinir Ağı)** | `%0.0` ⚠️ | `%100.0` (30/30) | **`%0.0` (0/30)** 🟢 | `1.65 m/s` | `0.299 m/s` | CBF sıfır kaza sağladı ancak sinir ağı-kalkan çekişmesinden dondu. |
+| **Integrated Safe-GNC (Master Mimari)**| **`%100.0`** 🟢 | **`%0.0`** 🟢 | **`%0.0`** 🟢 | **`0.94 m/s`** ⚡ | **`0.044 m/s`** 🟢 | **30'da 30 Başarı!** Tam yumuşak kenetlenme ($4.4\text{ cm/s} < 6.0\text{ cm/s}$). |
+
+- **CBF Müdahale Oranı:** `%9.0` (500 / 5562 adım).
+- **Komut Dosyası:** [run_monte_carlo_30_step6.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/run_monte_carlo_30_step6.py)
+
 
 ---
 

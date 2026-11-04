@@ -44,6 +44,7 @@ except ImportError:
                 return np.random.uniform(self.low, self.high, size=self.shape).astype(self.dtype)
 
 from reward_shaping import AsymptoticOrbitalReward, NaiveReward
+from orbital_config import CONFIG
 
 
 class OrbitalDockingEnv(gym.Env):
@@ -56,13 +57,13 @@ class OrbitalDockingEnv(gym.Env):
         self,
         reward_shaper=None,
         use_naive_reward=False,
-        dt=1.0,
-        max_steps=250,
-        chaser_mass=250.0,         # kg (Kompakt kovalayıcı servis uydusu)
-        max_thrust=15.0,           # Newton (RCS itki limiti)
-        orbit_altitude=400_000.0,  # 400 km LEO (ISS irtifası)
-        docking_radius=0.15,       # 15 cm kenetlenme toleransı
-        max_docking_speed=0.06     # 6 cm/s güvenli temas hızı
+        dt=CONFIG.dt,
+        max_steps=CONFIG.max_steps,
+        chaser_mass=CONFIG.chaser_mass,
+        max_thrust=CONFIG.max_thrust,
+        orbit_altitude=CONFIG.orbit_altitude,
+        docking_radius=CONFIG.docking_radius,
+        max_docking_speed=CONFIG.max_docking_speed
     ):
         super().__init__()
 
@@ -73,12 +74,7 @@ class OrbitalDockingEnv(gym.Env):
         self.docking_radius = docking_radius
         self.max_docking_speed = max_docking_speed
 
-        # Yerçekimi sabiti ve Dünya yarıçapı
-        mu = 3.986004418e14        # m^3 / s^2 (Yerçekimi parametresi)
-        r_earth = 6378137.0        # Metre
-        r_orbit = r_earth + orbit_altitude
-        # Ortalama hareket frekansı (Mean motion: n = sqrt(mu / r^3))
-        self.n = np.sqrt(mu / (r_orbit ** 3))
+        self.n = CONFIG.mean_motion
 
         # Ödül şekillendirici seçimi
         if reward_shaper is not None:
@@ -139,15 +135,15 @@ class OrbitalDockingEnv(gym.Env):
 
         self.current_step = 0
 
-        # Başlangıç Durumu (Chaser hedefin 15-25m gerisinde V-bar koridorunda başlar)
-        init_x = np.random.uniform(-4.0, 4.0)
-        init_y = np.random.uniform(15.0, 25.0)   # Along-track mesafe
-        init_z = np.random.uniform(-3.0, 3.0)
+        # Başlangıç Durumu (Chaser hedefin 18-25m gerisinde V-bar koridorunda başlar)
+        init_x = np.random.uniform(-CONFIG.init_radial_span, CONFIG.init_radial_span)
+        init_y = np.random.uniform(CONFIG.init_along_track_min, CONFIG.init_along_track_max)
+        init_z = np.random.uniform(-CONFIG.init_crosstrack_span, CONFIG.init_crosstrack_span)
 
-        # Başlangıç bağıl hızları (hafif rastgele dalgalanma)
-        init_vx = np.random.uniform(-0.05, 0.05)
-        init_vy = np.random.uniform(-0.15, -0.05)  # Hedefe doğru hafif negatif hız
-        init_vz = np.random.uniform(-0.05, 0.05)
+        # Başlangıç bağıl hızları
+        init_vx = np.random.uniform(-0.02, 0.02)
+        init_vy = -np.random.uniform(CONFIG.init_speed_closing_min, CONFIG.init_speed_closing_max)
+        init_vz = np.random.uniform(-0.02, 0.02)
 
         self.state = np.array([init_x, init_y, init_z, init_vx, init_vy, init_vz], dtype=np.float64)
         self.prev_state = self.state.copy()

@@ -18,6 +18,8 @@ import gymnasium as gym
 from gymnasium import spaces
 import mujoco
 
+from orbital_config import CONFIG
+
 
 class OrbitalMujocoEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 20}
@@ -26,11 +28,13 @@ class OrbitalMujocoEnv(gym.Env):
         self,
         xml_path=None,
         use_asymptotic_reward=True,
-        orbit_altitude=400_000.0, # 400 km LEO (ISS)
-        chaser_mass=500.0,        # kg
-        max_thrust=15.0,          # Newton
-        frame_skip=5,             # 5 x 0.1s = 0.5s per step
-        max_steps=260,            # 260 x 0.5s = 130 saniye
+        orbit_altitude=CONFIG.orbit_altitude,
+        chaser_mass=CONFIG.chaser_mass,
+        max_thrust=CONFIG.max_thrust,
+        frame_skip=CONFIG.mujoco_frame_skip,
+        max_steps=CONFIG.max_steps,
+        docking_radius=CONFIG.docking_radius,
+        max_docking_speed=CONFIG.max_docking_speed,
         render_mode=None
     ):
         super().__init__()
@@ -44,6 +48,7 @@ class OrbitalMujocoEnv(gym.Env):
 
         self.port_site_id = self.model.site("docking_port_site").id
         self.probe_site_id = self.model.site("chaser_docking_probe").id
+        self.chaser_body_id = self.model.body("chaser").id
 
         self.use_asymptotic_reward = use_asymptotic_reward
         self.frame_skip = frame_skip
@@ -51,16 +56,14 @@ class OrbitalMujocoEnv(gym.Env):
         self.current_step = 0
         self.render_mode = render_mode
 
-        # Astrodinamik parametreleri
+        # Astrodinamik parametreleri (Merkezi CONFIG'den)
         self.m = chaser_mass
         self.max_thrust = max_thrust
         self.orbit_altitude = orbit_altitude
+        self.docking_radius = docking_radius
+        self.max_docking_speed = max_docking_speed
 
-        mu_earth = 3.986004418e14  # m^3/s^2
-        r_earth = 6378137.0        # m
-        r_orbit = r_earth + self.orbit_altitude
-        # Mean motion (n = sqrt(mu / r^3))
-        self.n = np.sqrt(mu_earth / (r_orbit ** 3))
+        self.n = CONFIG.mean_motion
 
         # Eylem Uzayı: 3 Eksen İtici Kuvveti [-1, +1] -> [-15N, +15N]
         self.action_space = spaces.Box(
@@ -72,9 +75,6 @@ class OrbitalMujocoEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=-high_obs, high=high_obs, shape=(9,), dtype=np.float32
         )
-
-        self.docking_radius = 0.25       # 25 cm kenetlenme toleransı
-        self.max_docking_speed = 0.06    # 6 cm/s güvenli temas hızı
 
     def _get_obs(self):
         # Kenetlenme limanı ile prob ucu arasındaki bağıl konum
@@ -103,14 +103,14 @@ class OrbitalMujocoEnv(gym.Env):
         mujoco.mj_resetData(self.model, self.data)
         self.current_step = 0
 
-        # Başlangıç pozisyonu (Prob ucu limandan 20-25m mesafede)
-        init_x = np.random.uniform(-2.0, 2.0)
-        init_y = np.random.uniform(22.0, 26.0)
-        init_z = np.random.uniform(-1.5, 1.5)
+        # Başlangıç pozisyonu (Merkezi CONFIG zarfı)
+        init_x = np.random.uniform(-CONFIG.init_radial_span, CONFIG.init_radial_span)
+        init_y = np.random.uniform(CONFIG.init_along_track_min, CONFIG.init_along_track_max)
+        init_z = np.random.uniform(-CONFIG.init_crosstrack_span, CONFIG.init_crosstrack_span)
 
         # Başlangıç hızı
         init_vx = np.random.uniform(-0.02, 0.02)
-        init_vy = np.random.uniform(-0.22, -0.12)
+        init_vy = -np.random.uniform(CONFIG.init_speed_closing_min, CONFIG.init_speed_closing_max)
         init_vz = np.random.uniform(-0.02, 0.02)
 
         self.data.qpos[0] = init_x
@@ -150,7 +150,7 @@ class OrbitalMujocoEnv(gym.Env):
             self.data.ctrl[1] = thrust_forces[1]
             self.data.ctrl[2] = thrust_forces[2]
 
-            # 2. Clohessy-Wiltshire (CW) Yörüngesel Kuvvetlerini qfrc_applied ile Enjekte Et
+            # 2. Clohessy-Wiltshire (CW) Yörüngesel Kuvvetlerini xfrc_applied ile CoM'e Enjekte Et (Sıfır Parazit Tork)
             pos = self.data.qpos[:3]
             vel = self.data.qvel[:3]
 
@@ -158,10 +158,11 @@ class OrbitalMujocoEnv(gym.Env):
             f_cw_y = self.m * (-2.0 * self.n * vel[0])
             f_cw_z = self.m * (-(self.n ** 2) * pos[2])
 
+            self.data.xfrc_applied[self.chaser_body_id, :] = 0.0
+            self.data.xfrc_applied[self.chaser_body_id, 0] = f_cw_x
+            self.data.xfrc_applied[self.chaser_body_id, 1] = f_cw_y
+            self.data.xfrc_applied[self.chaser_body_id, 2] = f_cw_z
             self.data.qfrc_applied[:] = 0.0
-            self.data.qfrc_applied[0] = f_cw_x
-            self.data.qfrc_applied[1] = f_cw_y
-            self.data.qfrc_applied[2] = f_cw_z
 
             # 3. MuJoCo Adımı
             mujoco.mj_step(self.model, self.data)

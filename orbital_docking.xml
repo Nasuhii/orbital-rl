@@ -36,17 +36,20 @@
       <site name="docking_port_site" pos="0 1.6 0" size="0.2" rgba="0 1 0 0.9"/>
     </body>
 
-    <!-- 2. KOVALAYICI UZAY ARACI (CHASER SPACECRAFT) -->
+    <!-- 2. KOVALAYICI UZAY ARACI (CHASER SPACECRAFT - CoM Origin: pos 0 0.208 0 hizalanmış) -->
     <body name="chaser" pos="0 25 0">
       <freejoint name="chaser_freejoint"/>
-      <!-- Servis Modülü & Kapsül -->
-      <geom name="chaser_sm" type="cylinder" size="0.45 0.35" pos="0 0.5 0" euler="1.5708 0 0" material="mat_chaser_sm" mass="300"/>
-      <geom name="chaser_capsule" type="capsule" size="0.4 0.4" pos="0 -0.2 0" euler="1.5708 0 0" material="mat_chaser" mass="190"/>
-      <!-- Burun Kenetlenme Probu -->
-      <geom name="chaser_probe" type="cylinder" size="0.1 0.25" pos="0 -0.8 0" euler="1.5708 0 0" rgba="0.2 0.9 0.4 1" mass="10"/>
+      <!-- Servis Modülü (300 kg) -->
+      <geom name="chaser_sm" type="cylinder" size="0.45 0.35" pos="0 0.292 0" euler="1.5708 0 0" material="mat_chaser_sm" mass="300"/>
+      <!-- Kapsül Gövdesi (190 kg) -->
+      <geom name="chaser_capsule" type="capsule" size="0.4 0.4" pos="0 -0.408 0" euler="1.5708 0 0" material="mat_chaser" mass="190"/>
+      <!-- Burun Kenetlenme Probu (10 kg) -->
+      <geom name="chaser_probe" type="cylinder" size="0.1 0.25" pos="0 -1.008 0" euler="1.5708 0 0" rgba="0.2 0.9 0.4 1" mass="10"/>
       
+      <!-- İtici Merkezi (Tam CoM'de [0,0,0]) -->
       <site name="chaser_center_site" pos="0 0 0" size="0.15" rgba="1 1 0 0.8"/>
-      <site name="chaser_docking_probe" pos="0 -1.05 0" size="0.1" rgba="0.2 1 0.2 1"/>
+      <!-- Prob Ucu Sensörü (Yerel Y = -1.258m) -->
+      <site name="chaser_docking_probe" pos="0 -1.258 0" size="0.1" rgba="0.2 1 0.2 1"/>
     </body>
   </worldbody>
 

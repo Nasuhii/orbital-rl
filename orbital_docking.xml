@@ -1,0 +1,58 @@
+<mujoco model="orbital_docking">
+  <compiler angle="radian" coordinate="local" meshdir="assets"/>
+  <option gravity="0 0 0" timestep="0.1" integrator="RK4"/>
+
+  <visual>
+    <headlight ambient="0.3 0.3 0.35" diffuse="0.8 0.8 0.85" specular="0.3 0.3 0.3"/>
+    <rgba fog="0.04 0.06 0.12 1"/>
+    <global azimuth="140" elevation="-25"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.02 0.04 0.08" rgb2="0.005 0.01 0.02" width="512" height="512"/>
+    <material name="mat_station" specular="0.8" shininess="0.8" rgba="0.85 0.88 0.92 1"/>
+    <material name="mat_solar" specular="0.9" shininess="0.95" rgba="0.10 0.22 0.55 1"/>
+    <material name="mat_truss" specular="0.5" shininess="0.5" rgba="0.45 0.50 0.58 1"/>
+    <material name="mat_port" specular="0.9" shininess="0.9" rgba="0.08 0.85 0.45 1"/>
+    <material name="mat_chaser" specular="0.7" shininess="0.7" rgba="0.95 0.95 0.98 1"/>
+    <material name="mat_chaser_sm" specular="0.6" shininess="0.6" rgba="0.25 0.30 0.38 1"/>
+  </asset>
+
+  <worldbody>
+    <light directional="true" pos="30 40 30" dir="-0.5 -0.6 -0.5" diffuse="1.2 1.2 1.2" specular="0.5 0.5 0.5"/>
+    <light directional="true" pos="-20 -30 -20" dir="0.5 0.6 0.5" diffuse="0.3 0.4 0.7" specular="0.1 0.1 0.2"/>
+
+    <!-- 1. HEDEF UZAY İSTASYONU (TARGET STATION) -->
+    <body name="target_station" pos="0 0 0">
+      <!-- Ana Modül -->
+      <geom name="station_body" type="cylinder" size="1.2 3.0" euler="0 1.5708 0" material="mat_station"/>
+      <geom name="station_truss" type="box" size="0.2 0.2 6.0" pos="0 0 0" material="mat_truss"/>
+      <geom name="solar_panel_top" type="box" size="1.2 0.05 2.5" pos="0 0 3.8" material="mat_solar"/>
+      <geom name="solar_panel_bot" type="box" size="1.2 0.05 2.5" pos="0 0 -3.8" material="mat_solar"/>
+
+      <!-- Kenetlenme Portu (Y=1.6m Hizalanmış İskele) -->
+      <geom name="docking_tunnel" type="cylinder" size="0.65 0.3" pos="0 1.3 0" euler="1.5708 0 0" material="mat_truss"/>
+      <geom name="docking_port_ring" type="cylinder" size="0.55 0.1" pos="0 1.6 0" euler="1.5708 0 0" material="mat_port"/>
+      <site name="docking_port_site" pos="0 1.6 0" size="0.2" rgba="0 1 0 0.9"/>
+    </body>
+
+    <!-- 2. KOVALAYICI UZAY ARACI (CHASER SPACECRAFT) -->
+    <body name="chaser" pos="0 25 0">
+      <freejoint name="chaser_freejoint"/>
+      <!-- Servis Modülü & Kapsül -->
+      <geom name="chaser_sm" type="cylinder" size="0.45 0.35" pos="0 0.5 0" euler="1.5708 0 0" material="mat_chaser_sm" mass="300"/>
+      <geom name="chaser_capsule" type="capsule" size="0.4 0.4" pos="0 -0.2 0" euler="1.5708 0 0" material="mat_chaser" mass="190"/>
+      <!-- Burun Kenetlenme Probu -->
+      <geom name="chaser_probe" type="cylinder" size="0.1 0.25" pos="0 -0.8 0" euler="1.5708 0 0" rgba="0.2 0.9 0.4 1" mass="10"/>
+      
+      <site name="chaser_center_site" pos="0 0 0" size="0.15" rgba="1 1 0 0.8"/>
+      <site name="chaser_docking_probe" pos="0 -1.05 0" size="0.1" rgba="0.2 1 0.2 1"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="thrust_x" site="chaser_center_site" gear="1 0 0 0 0 0" ctrlrange="-15 15"/>
+    <motor name="thrust_y" site="chaser_center_site" gear="0 1 0 0 0 0" ctrlrange="-15 15"/>
+    <motor name="thrust_z" site="chaser_center_site" gear="0 0 1 0 0 0" ctrlrange="-15 15"/>
+  </actuator>
+</mujoco>

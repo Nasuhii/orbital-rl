@@ -126,7 +126,7 @@ def run_benchmark(num_episodes=15):
     pbrs_model = None
     if os.path.exists(pbrs_model_path) and HAS_SB3:
         try:
-            pbrs_model = PPO.load(pbrs_model_path)
+            pbrs_model = PPO.load(pbrs_model_path, device="cpu")
             print(f"📦 Yakınsanmış PBRS Modeli yüklendi: {pbrs_model_path}")
         except Exception as e:
             print(f"Model yüklenemedi: {e}")
@@ -353,7 +353,7 @@ def print_benchmark_table(results, num_episodes):
 
 def plot_benchmark_overview(results, num_episodes):
     fig = plt.figure(figsize=(18, 12), facecolor="#0B132B")
-    fig.suptitle("🛰️ Orbital-RL Gelişmiş Algoritma ve Simülasyon Kıyaslama Raporu",
+    fig.suptitle("Orbital-RL: Gelismis Algoritma ve Simulasyon Kiyaslama Raporu",
                  fontsize=18, fontweight="bold", color="#E0FBFC", y=0.97)
 
     # 1. 3D Yörünge Karşılaştırması
@@ -458,7 +458,7 @@ def plot_benchmark_overview(results, num_episodes):
 
 def plot_cbf_shield_telemetry(cbf_data):
     fig, axes = plt.subplots(3, 1, figsize=(14, 10), facecolor="#0B132B", sharex=True)
-    fig.suptitle("🛡️ CBF-QP Güvenlik Kalkanı Canlı Telemetri ve Eyleyici İtki Analizi",
+    fig.suptitle("CBF-QP Guvenlik Kalkani Canli Telemetri ve Eyleyici Itki Analizi",
                  fontsize=15, fontweight="bold", color="#E0FBFC", y=0.96)
 
     traj = np.array(cbf_data["traj"])

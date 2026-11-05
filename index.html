@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORBITAL-RL: Yörüngede Gerçek Zamanlı Kenetlenme & Görev Kontrol Sistemi 🛰️</title>
+    <title>ORBITAL-RL: Gerçek Zamanlı Dünya Yörüngesi & Güvenli Kenetlenme Sistemi 🛰️</title>
     <!-- Three.js ve OrbitControls CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -13,7 +13,7 @@
         :root {
             --bg-base: #020617;
             --panel-bg: rgba(9, 15, 28, 0.90);
-            --panel-border: rgba(56, 189, 248, 0.28);
+            --panel-border: rgba(56, 189, 248, 0.30);
             --cyan: #38bdf8;
             --green: #10b981;
             --amber: #f59e0b;
@@ -59,7 +59,7 @@
             -webkit-backdrop-filter: blur(14px);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.75);
             z-index: 10;
             padding: 12px;
             pointer-events: auto;
@@ -110,42 +110,116 @@
             50% { opacity: 0.45; }
         }
 
-        .pipeline-chain {
+        /* Senaryo Seçici Butonları */
+        .scenario-selector {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-family: var(--mono-font);
-            font-size: 10px;
             background: rgba(255, 255, 255, 0.04);
-            padding: 5px 12px;
-            border-radius: 20px;
+            padding: 4px 8px;
+            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .pipe-node {
+        .scenario-btn {
+            background: transparent;
+            border: 1px solid transparent;
             color: var(--text-secondary);
+            font-family: var(--mono-font);
+            font-size: 10px;
             font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .pipe-node.active {
+        .scenario-btn:hover {
             color: var(--cyan);
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+            background: rgba(56, 189, 248, 0.08);
         }
 
-        .top-actions {
+        .scenario-btn.active {
+            background: rgba(56, 189, 248, 0.20);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        /* 4 Canlı Metrik Üst Bar Şeridi */
+        .top-metrics-strip {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            font-family: var(--mono-font);
+            font-size: 11px;
         }
 
-        .btn-action {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: var(--text-primary);
-            padding: 5px 11px;
-            border-radius: 6px;
+        .top-m-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-m-val {
+            font-weight: 700;
+        }
+
+        /* 2. Sol Panel (350px) - Yörünge Astrodinamiği */
+        #left-panel {
+            top: 72px;
+            left: 12px;
+            bottom: 74px;
+            width: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 3. Sağ Panel (350px) - Safe-GNC Kenetlenme & PWPF */
+        #right-panel {
+            top: 72px;
+            right: 12px;
+            bottom: 74px;
+            width: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 4. Alt Kontrol Çubuğu */
+        #bottom-bar {
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 18px;
+            gap: 14px;
+        }
+
+        .camera-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cam-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+            font-family: var(--sans-font);
             font-size: 11px;
             font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -153,34 +227,83 @@
             gap: 5px;
         }
 
-        .btn-action:hover {
-            background: var(--cyan);
-            color: #060911;
+        .cam-btn:hover {
+            color: var(--cyan);
+            background: rgba(56, 189, 248, 0.1);
             border-color: var(--cyan);
         }
 
-        /* 2. Sol Panel (350px) */
-        #left-panel {
-            top: 72px;
-            left: 12px;
-            bottom: 68px;
-            width: 350px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        .cam-btn.active {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: var(--green);
+            color: var(--green);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
         }
 
-        /* 3. Sağ Panel (350px) */
-        #right-panel {
-            top: 72px;
-            right: 12px;
-            bottom: 68px;
-            width: 350px;
-            overflow-y: auto;
+        .sim-actions {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sim-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sim-btn:hover {
+            background: var(--cyan);
+            color: #020617;
+            border-color: var(--cyan);
+        }
+
+        /* Picture-in-Picture (PIP) Çerçevesi */
+        #pip-container {
+            position: absolute;
+            top: 76px;
+            right: 375px;
+            width: 220px;
+            height: 150px;
+            background: rgba(5, 10, 20, 0.88);
+            border: 1.5px solid var(--cyan);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            z-index: 12;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        #pip-container:hover {
+            transform: scale(1.03);
+            border-color: var(--green);
+        }
+
+        #pip-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .pip-label {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--cyan);
+            font-family: var(--mono-font);
+            font-size: 8.5px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            pointer-events: none;
         }
 
         /* Panel Başlıkları ve Kartlar */
@@ -207,17 +330,17 @@
 
         /* Kenetlenme Durum Kutusu */
         .docking-status-box {
-            padding: 9px;
+            padding: 8px;
             border-radius: 6px;
             font-weight: 700;
             font-size: 12px;
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             letter-spacing: 0.5px;
             transition: all 0.3s;
         }
         .status-approach { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--amber); color: var(--amber); }
-        .status-docked   { background: rgba(16, 185, 129, 0.25); border: 1px solid var(--green); color: var(--green); }
+        .status-docked   { background: rgba(16, 185, 129, 0.25); border: 1px solid var(--green); color: var(--green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
         .status-breach   { background: rgba(239, 68, 68, 0.25); border: 1px solid var(--red); color: #fca5a5; }
 
         .docking-metrics-grid {
@@ -250,232 +373,95 @@
             justify-content: space-between;
         }
 
-        .metric-thresh {
-            font-size: 8.5px;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        .control-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 11px;
-        }
-
-        .param-badge {
-            font-family: var(--mono-font);
-            color: var(--cyan);
-            font-weight: 700;
-            font-size: 11px;
-        }
-
-        /* Osiloskop */
+        /* Osiloskop Canvasları */
         .scope-container {
-            background: #02040a;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 6px;
-            padding: 4px;
-            margin-bottom: 6px;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .scope-label {
-            position: absolute;
-            top: 4px;
-            left: 6px;
-            font-size: 8.5px;
-            font-family: var(--mono-font);
-            color: var(--text-secondary);
-            background: rgba(2, 4, 10, 0.85);
-            padding: 1px 4px;
-            border-radius: 3px;
-            z-index: 2;
+        .scope-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .scope-canvas {
             display: block;
             width: 100%;
-            height: 72px;
-            background: #000;
+            height: 56px;
+            background: #030712;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* Manevra Düğümü */
-        .maneuver-axis {
+        /* Manevra Düğümü Kaydırıcıları */
+        .maneuver-row {
             display: flex;
-            flex-direction: column;
-            gap: 3px;
-            margin-bottom: 6px;
-        }
-
-        .axis-label {
-            display: flex;
+            align-items: center;
             justify-content: space-between;
-            font-size: 10px;
+            font-size: 11px;
             font-family: var(--mono-font);
-            color: var(--text-secondary);
+            margin-bottom: 4px;
         }
 
         .axis-slider {
             -webkit-appearance: none;
-            width: 100%;
-            height: 5px;
-            border-radius: 3px;
-            background: #1e293b;
+            width: 130px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
             outline: none;
         }
-
         .axis-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 13px;
-            height: 13px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--cyan);
             cursor: pointer;
             box-shadow: 0 0 6px var(--cyan);
         }
 
-        .axis-btn-group {
-            display: flex;
-            gap: 4px;
-        }
-
-        .micro-btn {
-            flex: 1;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
+        .btn-burn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: #fff;
-            padding: 3px;
-            border-radius: 5px;
-            font-family: var(--mono-font);
-            font-size: 9.5px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .micro-btn:hover {
-            background: rgba(56, 189, 248, 0.2);
-            color: var(--cyan);
-        }
-
-        .btn-execute {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
             border: none;
-            color: #fff;
-            font-family: var(--sans-font);
-            font-size: 12px;
-            font-weight: 800;
-            padding: 8px;
-            border-radius: 7px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .btn-execute:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
-        }
-
-        /* Alt Kontrol Barı */
-        #bottom-bar {
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 18px;
-        }
-
-        .btn-ctrl {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: var(--text-primary);
-            width: 32px;
-            height: 32px;
+            padding: 6px 12px;
             border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .btn-ctrl:hover {
-            background: var(--cyan);
-            color: #060911;
-        }
-
-        .select-custom {
-            background: #090e1a;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-primary);
-            padding: 5px 9px;
-            border-radius: 6px;
-            font-size: 11px;
-            outline: none;
-        }
-
-        /* Tablo */
-        .history-table {
-            width: 100%;
-            font-family: var(--mono-font);
-            font-size: 9.5px;
-            border-collapse: collapse;
-        }
-
-        .history-table th {
-            color: var(--text-secondary);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 4px;
-            text-align: left;
-        }
-
-        .history-table td {
-            padding: 4px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .status-pill {
-            padding: 1px 5px;
-            border-radius: 4px;
-            font-size: 8.5px;
             font-weight: 700;
-        }
-        .pill-active { background: rgba(56, 189, 248, 0.2); color: var(--cyan); }
-
-        .active-toggle {
-            background: rgba(16, 185, 129, 0.25) !important;
-            border-color: var(--green) !important;
-            color: var(--green) !important;
-        }
-
-        .text-cyan { color: var(--cyan); }
-        .text-green { color: var(--green); }
-        .text-amber { color: var(--amber); }
-        .text-purple { color: var(--purple); }
-
-        /* Yer İzi 2D Canvas */
-        .ground-track-hud {
+            font-size: 11px;
+            font-family: var(--mono-font);
+            cursor: pointer;
             width: 100%;
-            height: 95px;
-            background: #02040a;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 5px;
+            margin-top: 4px;
+            transition: opacity 0.2s;
         }
+        .btn-burn:hover { opacity: 0.9; }
 
+        /* 2D Dünya Yer İzi Canvası */
         #ground-track-canvas {
             width: 100%;
-            height: 100%;
+            height: 110px;
+            background: #030712;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            display: block;
+        }
+
+        /* Renk Sınıfları */
+        .text-green { color: var(--green); }
+        .text-cyan  { color: var(--cyan); }
+        .text-amber { color: var(--amber); }
+        .text-red   { color: var(--red); }
+        .text-purple{ color: var(--purple); }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10.5px;
+            font-family: var(--mono-font);
         }
 
         /* Kokpit Hedef Nişangahı */
@@ -484,610 +470,583 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
+            border: 2px dashed rgba(16, 185, 129, 0.7);
+            border-radius: 50%;
             pointer-events: none;
             display: none;
-            z-index: 5;
+            z-index: 15;
         }
-        .reticle-outer {
-            width: 100%; height: 100%;
-            border: 1.5px dashed rgba(56, 189, 248, 0.5);
-            border-radius: 50%;
+        #docking-reticle::before, #docking-reticle::after {
+            content: '';
+            position: absolute;
+            background: rgba(16, 185, 129, 0.8);
         }
-        .reticle-cross-h {
-            position: absolute; top: 50%; left: -20px; right: -20px; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-        }
-        .reticle-cross-v {
-            position: absolute; left: 50%; top: -20px; bottom: -20px; width: 1px;
-            background: linear-gradient(180deg, transparent, var(--cyan), transparent);
-        }
-        .reticle-target-box {
-            position: absolute; width: 28px; height: 28px;
-            border: 2px solid var(--green);
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            border-radius: 4px;
-        }
+        #docking-reticle::before { top: 50%; left: 10px; right: 10px; height: 1.5px; transform: translateY(-50%); }
+        #docking-reticle::after  { left: 50%; top: 10px; bottom: 10px; width: 1.5px; transform: translateX(-50%); }
+
+        /* Kaydırma Çubuğu */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
     </style>
 </head>
 <body>
 
-    <!-- 1. ÜST KONTROL & BAŞLIK BARI -->
-    <div id="top-bar" class="hud-panel">
+    <!-- 3D ANA WEBGL TUVALİ -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- KOKPİT HEDEF NİŞANGAHI (HUD) -->
+    <div id="docking-reticle"></div>
+
+    <!-- 📡 CANLI RESİM-İÇİNDE-RESİM (PIP) İKİNCİ KAMERA -->
+    <div id="pip-container" onclick="togglePipView()" title="Tıklayarak Ana Kamera ile Değiştirin">
+        <canvas id="pip-canvas" width="220" height="150"></canvas>
+        <div class="pip-label" id="pip-title-badge">📡 PIP: KENETLENME PORTU (2.4m)</div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- 1. ÜST KONTROL & BİLGİ ÇUBUĞU                             -->
+    <!-- ========================================================= -->
+    <div class="hud-panel" id="top-bar">
         <div class="brand-section">
             <div class="brand-title">
                 <span>🛰️ ORBITAL-RL</span>
-                <span style="font-weight: 400; font-size: 13px; color: var(--text-secondary);">| Yörüngede Gerçek Zamanlı Kenetlenme & Görev Kontrol</span>
+                <span style="font-weight: 400; font-size: 12px; color: var(--text-secondary);">| Yörünge & Kenetlenme Sistemi</span>
             </div>
-            <span class="badge-live">CANLI YÖRÜNGE + HASSAS TEMAS</span>
+            <div class="badge-live">LIVE DOCKING & ASTRODYNAMICS</div>
         </div>
 
-        <!-- PPO -> CBF -> PWPF PIPELINE -->
-        <div class="pipeline-chain" id="pipeline-hud">
-            <span class="pipe-node active">PPO Ajanı</span>
-            <span class="pipe-arrow">➔</span>
-            <span id="pipe-cbf" class="pipe-node active">CBF-QP Kalkan</span>
-            <span class="pipe-arrow">➔</span>
-            <span class="pipe-node active">PWPF İtici</span>
-            <span class="pipe-arrow">➔</span>
-            <span class="pipe-node active">400 km LEO Yörüngesi</span>
+        <!-- Yörünge Senaryo Seçici -->
+        <div class="scenario-selector">
+            <button class="scenario-btn active" id="scen-iss" onclick="setScenario('ISS')">🛰️ ISS (408 km)</button>
+            <button class="scenario-btn" id="scen-gto" onclick="setScenario('GTO')">⚡ GTO (250x35k km)</button>
+            <button class="scenario-btn" id="scen-geo" onclick="setScenario('GEO')">🌐 GEO (35.8k km)</button>
+            <button class="scenario-btn" id="scen-mol" onclick="setScenario('MOLNIYA')">🇷🇺 Molniya (HEO)</button>
         </div>
 
-        <div class="top-actions">
-            <button class="btn-action" onclick="resetSimulation(false)">🔄 Yeniden Başlat</button>
-            <button class="btn-action" onclick="resetSimulation(true)">🎲 Rastgele Konum</button>
-        </div>
-    </div>
-
-    <!-- 2. SOL PANEL: DOCKING TELEMETRİSİ + YÖRÜNGE BİLGİLERİ -->
-    <div id="left-panel" class="hud-panel">
-        <!-- A. Kenetlenme Durumu ve Eşikler (Eski Sistem) -->
-        <div>
-            <div class="section-title">
-                <span>Kenetlenme Durumu & Toleranslar</span>
-                <span id="txt-mode-tag" style="font-size: 9px; color: var(--green);">NOMİNAL</span>
+        <!-- 4 Canlı Metrik Üst Şerit (Eski Sistemin Can Damarı) -->
+        <div class="top-metrics-strip">
+            <div class="top-m-item">
+                <span style="color: var(--text-secondary);">Mesafe |d|:</span>
+                <span class="top-m-val text-cyan" id="top-dist">25.00 m</span>
             </div>
-
-            <div id="docking-status-banner" class="docking-status-box status-approach">
-                🟡 KORİDORDA YAKLAŞMA (APPROACH)
+            <div style="color: rgba(255,255,255,0.2);">|</div>
+            <div class="top-m-item">
+                <span style="color: var(--text-secondary);">Hız v:</span>
+                <span class="top-m-val text-green" id="top-speed">0.18 m/s</span>
             </div>
-
-            <div class="docking-metrics-grid">
-                <div class="metric-box">
-                    <span class="metric-title">Port Mesafesi (|d|):</span>
-                    <div class="metric-val">
-                        <span id="val-dist" class="text-cyan">25.00 m</span>
-                        <span class="metric-thresh">&le; 0.05 m</span>
-                    </div>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-title">Kapanma Hızı (v):</span>
-                    <div class="metric-val">
-                        <span id="val-speed" class="text-green">0.180 m/s</span>
-                        <span class="metric-thresh">&le; 0.10 m/s</span>
-                    </div>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-title">Yanal Sapma (&delta;lat):</span>
-                    <div class="metric-val">
-                        <span id="val-lat" class="text-green">0.04 m</span>
-                        <span class="metric-thresh">&le; 0.10 m</span>
-                    </div>
-                </div>
-
-                <div class="metric-box">
-                    <span class="metric-title">Açı Hatası (&theta;):</span>
-                    <div class="metric-val">
-                        <span id="val-ang" class="text-green">1.2&deg;</span>
-                        <span class="metric-thresh">&le; 5.0&deg;</span>
-                    </div>
-                </div>
+            <div style="color: rgba(255,255,255,0.2);">|</div>
+            <div class="top-m-item">
+                <span style="color: var(--text-secondary);">Yanal δlat:</span>
+                <span class="top-m-val text-amber" id="top-lat">0.12 m</span>
             </div>
-        </div>
-
-        <!-- B. Canlı Yörünge Elemanları (Orbit Telemetry) -->
-        <div>
-            <div class="section-title">
-                <span>Canlı Yörünge Elemanları</span>
-                <span class="text-cyan">LEO ISS 400 KM</span>
-            </div>
-            <div class="card" style="display: flex; flex-direction: column; gap: 4px; font-family: var(--mono-font); font-size: 11px;">
-                <div class="control-row"><span>Apoapsis / Periapsis:</span><b class="text-cyan" id="tel-ap-pe">412.1 / 403.9 km</b></div>
-                <div class="control-row"><span>Yarı-Büyük Eksen (a):</span><b id="tel-sma">6786.1 km</b></div>
-                <div class="control-row"><span>Eksantriklik (e):</span><b class="text-amber" id="tel-ecc">0.00060</b></div>
-                <div class="control-row"><span>Eğim Açısı (i):</span><b id="tel-inc">51.64°</b></div>
-                <div class="control-row"><span>Orbital Hız (|v|):</span><b class="text-green" id="tel-speed-orbit">7.669 km/s</b></div>
-                <div class="control-row"><span>Yörünge Periyodu:</span><b id="tel-period">92.7 dk</b></div>
-                <div class="control-row"><span>Kalan ΔV Bütçesi:</span><b class="text-purple" id="tel-fuel-dv">718.6 m/s</b></div>
-            </div>
-        </div>
-
-        <!-- C. Görsel Teşhis Araçları (Eski Sistem) -->
-        <div>
-            <div class="section-title">
-                <span>Görsel Teşhis Araçları</span>
-                <span style="font-size: 9px; color: var(--text-secondary);">Mesh & Kesit</span>
-            </div>
-            <div class="card" style="display: flex; flex-direction: column; gap: 8px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                    <button id="btn-xray" class="btn-action" onclick="toggleXray()">🩻 X-Ray (%25)</button>
-                    <button id="btn-wire" class="btn-action" onclick="toggleWireframe()">🕸️ Wireframe</button>
-                    <button id="btn-clip" class="btn-action" onclick="toggleCrossSection()">✂️ Kesit (Yandan)</button>
-                    <button id="btn-auto-slow" class="btn-action active-toggle" onclick="toggleAutoSlowmo()">⚡ Oto Yavaşlama</button>
-                </div>
-
-                <div class="control-row" style="margin-top: 4px;">
-                    <label>Simülasyon Hızı:</label>
-                    <input type="range" id="slider-sim-speed" min="0.05" max="1.0" step="0.05" value="0.5" oninput="simSpeed = parseFloat(this.value); document.getElementById('lbl-speed').textContent = this.value + 'x';">
-                    <span id="lbl-speed" class="param-badge">0.5x</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- D. Astrodinamik & PWPF Ayarları (Eski Sistem) -->
-        <div>
-            <div class="section-title">
-                <span>Fizik & İtici Donanımı</span>
-                <span style="font-size: 9px; color: var(--text-secondary);">3D CW + PWPF</span>
-            </div>
-            <div class="card">
-                <div class="control-row">
-                    <label>İrtifa (LEO h):</label>
-                    <input type="range" id="slider-alt" min="200" max="1000" step="20" value="400" oninput="updateOrbitAltitude(this.value)">
-                    <span id="lbl-alt" class="param-badge">400 km</span>
-                </div>
-                <div class="control-row">
-                    <label>Araç Kütlesi (m):</label>
-                    <input type="range" id="slider-mass" min="250" max="1200" step="50" value="500" oninput="chaserMass = parseFloat(this.value); document.getElementById('lbl-mass').textContent = this.value + 'kg';">
-                    <span id="lbl-mass" class="param-badge">500 kg</span>
-                </div>
-                <div class="control-row">
-                    <label>Valf Eşiği (Uon):</label>
-                    <input type="range" id="slider-uon" min="0.1" max="0.7" step="0.05" value="0.30" oninput="pwpfParams.Uon = parseFloat(this.value); document.getElementById('lbl-uon').textContent = this.value;">
-                    <span id="lbl-uon" class="param-badge">0.30</span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; font-family: var(--mono-font); font-size: 11px;">
-                    <div style="background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px;">
-                        <span style="font-size: 9px; color: var(--text-secondary);">Valf Yorulması:</span>
-                        <div id="txt-valves" style="font-weight: 700; color: #f43f5e;">0 devir</div>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px;">
-                        <span style="font-size: 9px; color: var(--text-secondary);">Harcanan Delta-V:</span>
-                        <div id="txt-deltav" style="font-weight: 700; color: #38bdf8;">0.00 m/s</div>
-                    </div>
-                </div>
+            <div style="color: rgba(255,255,255,0.2);">|</div>
+            <div class="top-m-item">
+                <span style="color: var(--text-secondary);">Açı θ:</span>
+                <span class="top-m-val text-purple" id="top-ang">1.4°</span>
             </div>
         </div>
     </div>
 
-    <!-- 3. SAĞ PANEL: CBF-QP, OSİLOSKOPLAR, MANEVRA DÜĞÜMÜ & YER İZİ -->
-    <div id="right-panel" class="hud-panel">
-        <!-- A. CBF-QP Güvenlik Kalkanı (Eski Sistem) -->
-        <div>
-            <div class="section-title">
-                <span>CBF-QP Güvenlik Kalkanı</span>
-                <span id="cbf-status-text" style="color: var(--green); font-family: var(--mono-font); font-size: 10px;">AKTİF 🛡️</span>
-            </div>
-            <div class="card" style="display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 11px;">CBF Filtresi:</span>
-                    <button id="btn-toggle-cbf" class="btn-action active-toggle" onclick="toggleCBF()">AÇIK</button>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 11px; color: var(--text-secondary);">Saldırgan Mod:</span>
-                    <button id="btn-toggle-aggr" class="btn-action" style="background: rgba(239, 68, 68, 0.15);" onclick="toggleAggressive()">KAPALI</button>
-                </div>
-                <div id="cbf-alert" style="display: none; background: rgba(239, 68, 68, 0.25); border: 1px solid var(--red); color: #fca5a5; padding: 5px; border-radius: 5px; font-size: 10px; font-family: var(--mono-font); text-align: center;">
-                    ⚠️ CBF MÜDAHALESİ: HIZ TAVANI AŞILDI!
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 10px; font-family: var(--mono-font);">
-                    <span>Müdahale: <b id="txt-cbf-count" style="color: var(--amber);">0</b></span>
-                    <span>h(v) Sınırı: <b id="txt-cbf-h" style="color: var(--cyan);">+0.50</b></span>
-                </div>
-            </div>
+    <!-- ========================================================= -->
+    <!-- 2. SOL PANEL: YÖRÜNGE MEKANİĞİ & ASTRODİNAMİK HUD         -->
+    <!-- ========================================================= -->
+    <div class="hud-panel" id="left-panel">
+        <div class="section-title">
+            <span>🌍 Kepler & Yörünge Telemetrisi</span>
+            <span class="text-green" id="disp-orbit-class">LEO DAİRESEL</span>
         </div>
 
-        <!-- B. PWPF İtici Osiloskobu (Eski Sistem) -->
-        <div>
-            <div class="section-title">
-                <span>PWPF İtici Osiloskobu (X, Y, Z)</span>
-                <span style="font-size: 9px; color: var(--text-secondary);">Canlı PWM Darbeleri</span>
-            </div>
-            <div class="scope-container">
-                <span class="scope-label">X-EKSENİ (Radyal Sapma)</span>
-                <canvas id="scope-x" class="scope-canvas" width="330" height="72"></canvas>
-            </div>
-            <div class="scope-container">
-                <span class="scope-label">Y-EKSENİ (Along-Track / V-Bar İtiş & Fren)</span>
-                <canvas id="scope-y" class="scope-canvas" width="330" height="72"></canvas>
-            </div>
-            <div class="scope-container">
-                <span class="scope-label">Z-EKSENİ (Cross-Track Düzlem)</span>
-                <canvas id="scope-z" class="scope-canvas" width="330" height="72"></canvas>
-            </div>
+        <div class="card" style="display: flex; flex-direction: column; gap: 4px; font-family: var(--mono-font); font-size: 10px;">
+            <div class="control-row"><span>Apoapsis (Enöte - Ap):</span><b class="text-cyan" id="tel-apoapsis">412.4 km</b></div>
+            <div class="control-row"><span>Periapsis (Enberi - Pe):</span><b class="text-green" id="tel-periapsis">402.1 km</b></div>
+            <div class="control-row"><span>Yarı Büyük Eksen (a):</span><b id="tel-sma">6785.2 km</b></div>
+            <div class="control-row"><span>Dışmerkezlik (e):</span><b class="text-amber" id="tel-ecc">0.0006</b></div>
+            <div class="control-row"><span>Eğim (i):</span><b id="tel-inc">51.64°</b></div>
+            <div class="control-row"><span>Yörünge Hızı (|v|):</span><b class="text-green" id="tel-speed-orbit">7.669 km/s</b></div>
+            <div class="control-row"><span>Periyot (T):</span><b id="tel-period">92.68 dk</b></div>
+            <div class="control-row"><span>J2 Düğüm Presesyonu:</span><b class="text-purple" id="tel-j2">-5.12° / gün</b></div>
         </div>
 
-        <!-- C. Canlı Yörünge Manevra Düğümü Planlayıcı -->
-        <div>
-            <div class="section-title">
-                <span>Yörünge Manevra Düğümü (RCS / İtki)</span>
-                <span class="text-amber" id="disp-dv-mag">ΔV: 0.0 m/s</span>
-            </div>
-            <div class="card">
-                <!-- Prograde / Retrograde -->
-                <div class="maneuver-axis">
-                    <div class="axis-label">
-                        <span>Teğetsel İtki (Prograde / Retrograde)</span>
-                        <span id="label-prograde" class="text-cyan">0.0 m/s</span>
-                    </div>
-                    <input type="range" min="-60" max="60" value="0" step="0.5" class="axis-slider" id="slider-prograde" oninput="updateManeuverNode()">
-                    <div class="axis-btn-group">
-                        <button class="micro-btn" onclick="addManeuverDelta('prograde', -5)">-5</button>
-                        <button class="micro-btn" onclick="resetManeuverAxis('prograde')">0</button>
-                        <button class="micro-btn" onclick="addManeuverDelta('prograde', 5)">+5</button>
-                    </div>
-                </div>
-
-                <!-- Normal / Anti-Normal -->
-                <div class="maneuver-axis">
-                    <div class="axis-label">
-                        <span>Düzlem Dışı (Normal / Anti-Normal)</span>
-                        <span id="label-normal" class="text-purple">0.0 m/s</span>
-                    </div>
-                    <input type="range" min="-60" max="60" value="0" step="0.5" class="axis-slider" id="slider-normal" oninput="updateManeuverNode()">
-                    <div class="axis-btn-group">
-                        <button class="micro-btn" onclick="addManeuverDelta('normal', -5)">-5</button>
-                        <button class="micro-btn" onclick="resetManeuverAxis('normal')">0</button>
-                        <button class="micro-btn" onclick="addManeuverDelta('normal', 5)">+5</button>
-                    </div>
-                </div>
-
-                <button class="btn-execute" onclick="executeManeuverNode()">
-                    🔥 YÖRÜNGEDE ATEŞLE (EXECUTE BURN)
-                </button>
-            </div>
+        <!-- 2D Canlı Dünya Yer İzi (Ground Track) -->
+        <div class="section-title" style="margin-top: 4px;">
+            <span>🌐 Canlı Dünya Yer İzi Haritası</span>
+            <span class="text-cyan">2D PROJEKSİYON</span>
         </div>
+        <canvas id="ground-track-canvas" width="330" height="110"></canvas>
 
-        <!-- D. 2D Canlı Dünya Yer İzi (Ground Track) -->
-        <div>
-            <div class="section-title">
-                <span>Canlı Dünya Yer İzi (Ground Track)</span>
-                <span style="font-size: 9px; color: var(--text-secondary);">J2 Nodal Drift</span>
+        <!-- Manevra Düğümü Planlayıcı (Impulsive Burn) -->
+        <div class="section-title" style="margin-top: 6px;">
+            <span>🕹️ Yörünge Manevra Düğümü</span>
+            <span class="text-amber">ΔV PLANLAYICI</span>
+        </div>
+        <div class="card">
+            <div class="maneuver-row">
+                <span style="color: var(--green);">Prograde (+ΔV):</span>
+                <input type="range" class="axis-slider" id="slider-prograde" min="-50" max="100" step="1" value="0" oninput="updateManeuverNode()">
+                <span id="disp-prograde" style="width: 45px; text-align: right;">0 m/s</span>
             </div>
-            <div class="ground-track-hud">
-                <canvas id="ground-track-canvas"></canvas>
+            <div class="maneuver-row">
+                <span style="color: var(--cyan);">Normal (+Eğim):</span>
+                <input type="range" class="axis-slider" id="slider-normal" min="-40" max="40" step="1" value="0" oninput="updateManeuverNode()">
+                <span id="disp-normal" style="width: 45px; text-align: right;">0 m/s</span>
+            </div>
+            <div class="maneuver-row">
+                <span style="color: var(--purple);">Radyal (+Yarıçap):</span>
+                <input type="range" class="axis-slider" id="slider-radial" min="-40" max="40" step="1" value="0" oninput="updateManeuverNode()">
+                <span id="disp-radial" style="width: 45px; text-align: right;">0 m/s</span>
+            </div>
+
+            <button class="btn-burn" onclick="executeManeuverBurn()">🚀 MANEVRAYI UYGULA (BURST EXECUTE)</button>
+
+            <div style="display: flex; gap: 4px; margin-top: 6px;">
+                <button class="sim-btn" style="flex: 1; padding: 4px; font-size: 10px;" onclick="calculateHohmann()">⚡ Hohmann</button>
+                <button class="sim-btn" style="flex: 1; padding: 4px; font-size: 10px;" onclick="circularizeOrbit()">⭕ Daireselleştir</button>
+                <button class="sim-btn" style="flex: 1; padding: 4px; font-size: 10px;" onclick="resetManeuverSliders()">↺ Sıfırla</button>
             </div>
         </div>
     </div>
 
-    <!-- 4. ALT OYNATMA & KAMERA KONTROL BARI -->
-    <div id="bottom-bar" class="hud-panel">
-        <button id="btn-play" class="btn-ctrl" onclick="togglePlay()">⏸</button>
-        <button class="btn-ctrl" onclick="stepSimulation(1)" title="Tek Adım İlerle">⏭</button>
+    <!-- ========================================================= -->
+    <!-- 3. SAĞ PANEL: SAFE-GNC KENETLENME, CBF-QP & PWPF          -->
+    <!-- ========================================================= -->
+    <div class="hud-panel" id="right-panel">
+        <div class="section-title">
+            <span>🎯 Safe-GNC Terminal Kenetlenme</span>
+            <span class="text-green">CBF-QP SHIELD</span>
+        </div>
 
-        <span style="font-size: 11px; color: var(--text-secondary); margin-left: 6px;">Kamera Odak:</span>
-        <select id="select-cam" class="select-custom" onchange="changeCamera(this.value)">
-            <option value="orbit" selected>🛰️ İstasyon & Dünya Ufku (Yörüngede)</option>
-            <option value="docking">🎯 Yakın Port Kamerası (2.4m)</option>
-            <option value="chase">🎥 Kovalayıcı Takip</option>
-            <option value="fpv">🚀 Kokpit HUD (Pilot Reticle)</option>
-            <option value="earth">🌍 Küresel Dünya Yörünge Görünümü</option>
-        </select>
+        <!-- Durum Kutusu & Latch Kilit Göstergesi -->
+        <div class="docking-status-box status-approach" id="dock-status-card">
+            <span id="dock-status-text">🛰️ KORİDORDA YAKLAŞMA (APPROACH)</span>
+        </div>
 
-        <div style="height: 18px; width: 1px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
-        <span style="font-size: 11px; font-family: var(--mono-font); color: var(--cyan);" id="hud-sim-clock">T+ 00:00:00</span>
+        <!-- 4 Detaylı Metrik Kartı -->
+        <div class="docking-metrics-grid">
+            <div class="metric-box">
+                <span class="metric-title">Kalan Mesafe (|d|)</span>
+                <div class="metric-val text-cyan"><span id="metric-dist">25.00</span><small>m</small></div>
+            </div>
+            <div class="metric-box">
+                <span class="metric-title">Kapanma Hızı (v)</span>
+                <div class="metric-val text-green"><span id="metric-speed">0.18</span><small>m/s</small></div>
+            </div>
+            <div class="metric-box">
+                <span class="metric-title">Yanal Sapma (δlat)</span>
+                <div class="metric-val text-amber"><span id="metric-lat">0.12</span><small>m</small></div>
+            </div>
+            <div class="metric-box">
+                <span class="metric-title">Açısal Hata (θ)</span>
+                <div class="metric-val text-purple"><span id="metric-ang">1.4</span><small>°</small></div>
+            </div>
+        </div>
+
+        <!-- CBF-QP Güvenlik Kalkanı & Hız Tavanı -->
+        <div class="card" style="margin-top: 4px; display: flex; flex-direction: column; gap: 4px; font-family: var(--mono-font); font-size: 10px;">
+            <div class="control-row"><span>CBF Güvenlik Kalkanı:</span><b class="text-green" id="metric-shield">SHIELD ACTIVE [qp=optimal]</b></div>
+            <div class="control-row"><span>Bariyer Değeri h(v):</span><b class="text-cyan" id="metric-barrier">-0.008 &le; 0.00</b></div>
+            <div class="control-row"><span>Valf Yorulması (Devir):</span><b class="text-amber" id="metric-cycles">0 devir</b></div>
+            <div class="control-row"><span>Toplam PWPF Darbesi:</span><b id="metric-pulses">0 pulse</b></div>
+            <div class="control-row"><span>Tüketilen ΔV (Yakıt):</span><b class="text-rose" id="metric-deltav">0.00 m/s</b></div>
+            <div class="control-row"><span>Kalan İtici Gaz:</span><b class="text-green" id="metric-fuel">120.00 kg</b></div>
+        </div>
+
+        <!-- 3 Eksenli PWPF İtici Osiloskopları (scope-x, scope-y, scope-z) -->
+        <div class="section-title" style="margin-top: 6px;">
+            <span>📈 3 Eksenli PWPF Osiloskopları</span>
+            <span class="text-cyan">CANLI İTİCİ DARBELERİ</span>
+        </div>
+        <div class="scope-container">
+            <div class="scope-row">
+                <div style="font-size: 9px; font-family: var(--mono-font); color: var(--text-secondary); display: flex; justify-content: space-between;">
+                    <span>X Ekseni (Radyal R-Bar):</span><span class="text-cyan" id="pwpf-val-x">0 N</span>
+                </div>
+                <canvas id="scope-x" class="scope-canvas" width="330" height="56"></canvas>
+            </div>
+            <div class="scope-row">
+                <div style="font-size: 9px; font-family: var(--mono-font); color: var(--text-secondary); display: flex; justify-content: space-between;">
+                    <span>Y Ekseni (Uçuş Yolu V-Bar):</span><span class="text-green" id="pwpf-val-y">0 N</span>
+                </div>
+                <canvas id="scope-y" class="scope-canvas" width="330" height="56"></canvas>
+            </div>
+            <div class="scope-row">
+                <div style="font-size: 9px; font-family: var(--mono-font); color: var(--text-secondary); display: flex; justify-content: space-between;">
+                    <span>Z Ekseni (Düzlem Dışı H-Bar):</span><span class="text-purple" id="pwpf-val-z">0 N</span>
+                </div>
+                <canvas id="scope-z" class="scope-canvas" width="330" height="56"></canvas>
+            </div>
+        </div>
+
+        <!-- Görsel İnceleme & Donanım Araçları -->
+        <div class="section-title" style="margin-top: 6px;">
+            <span>🛠️ Donanım & Görünüm Modları</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+            <button class="sim-btn" id="btn-xray" onclick="toggleXray()">👁️ X-Ray (%25)</button>
+            <button class="sim-btn" id="btn-wire" onclick="toggleWireframe()">🕸️ Wireframe</button>
+            <button class="sim-btn" id="btn-cut" onclick="toggleCutaway()">✂️ Kesit (Cut)</button>
+            <button class="sim-btn" id="btn-brake" onclick="toggleAutoBrake()">🛑 Oto-Fren</button>
+        </div>
     </div>
 
-    <!-- Kokpit / Burun Kamerası Hedef Nişangahı -->
-    <div id="docking-reticle">
-        <div class="reticle-outer"></div>
-        <div class="reticle-cross-h"></div>
-        <div class="reticle-cross-v"></div>
-        <div id="reticle-box" class="reticle-target-box"></div>
+    <!-- ========================================================= -->
+    <!-- 4. ALT KONTROL ÇUBUĞU                                     -->
+    <!-- ========================================================= -->
+    <div class="hud-panel" id="bottom-bar">
+        <!-- Kamera Hızlı Seçicileri -->
+        <div class="camera-group">
+            <span style="font-size: 11px; font-family: var(--mono-font); color: var(--cyan); margin-right: 4px;">KAMERA:</span>
+            <button class="cam-btn active" id="btn-cam-orbit" onclick="setCameraMode('orbit')">🌍 1. Küresel Yörünge Rayı</button>
+            <button class="cam-btn" id="btn-cam-dock" onclick="setCameraMode('docking')">🎯 2. Terminal Kenetlenme Koridoru</button>
+            <button class="cam-btn" id="btn-cam-chase" onclick="setCameraMode('chase')">🛰️ 3. Kovalayıcı Uydu Takip</button>
+            <button class="cam-btn" id="btn-cam-fpv" onclick="setCameraMode('fpv')">🚀 4. Kokpit HUD</button>
+        </div>
+
+        <!-- Zaman Hızlandırma Butonları (Time Warp) -->
+        <div style="display: flex; align-items: center; gap: 4px; font-family: var(--mono-font); font-size: 11px;">
+            <span style="color: var(--text-secondary);">ZAMAN:</span>
+            <button class="scenario-btn active" id="warp-1" onclick="setTimeWarp(1)">1x</button>
+            <button class="scenario-btn" id="warp-5" onclick="setTimeWarp(5)">5x</button>
+            <button class="scenario-btn" id="warp-25" onclick="setTimeWarp(25)">25x</button>
+            <button class="scenario-btn" id="warp-100" onclick="setTimeWarp(100)">100x</button>
+        </div>
+
+        <!-- Simülasyon Oynat/Durdur Kontrolleri -->
+        <div class="sim-actions">
+            <button class="sim-btn" id="btn-play" style="min-width: 36px;" onclick="togglePlay()">⏸</button>
+            <button class="sim-btn" onclick="stepSimulation(1)">⏭ +1</button>
+            <button class="sim-btn" onclick="stepSimulation(10)">⏭ +10</button>
+            <button class="sim-btn" style="color: var(--amber);" onclick="resetAllSimulation()">↺ Sıfırla</button>
+        </div>
     </div>
 
-    <canvas id="webgl-canvas"></canvas>
-
-    <!-- ==================================================================== -->
-    <!-- JAVASCRIPT: BİRLEŞİK YÖRÜNGE & KENETLENME MOTORU (THREE.JS)          -->
-    <!-- ==================================================================== -->
+    <!-- ========================================================= -->
+    <!-- 5. THREE.JS, ASTRODİNAMİK & GÜVENLİ KENETLENME MOTORU       -->
+    <!-- ========================================================= -->
     <script>
         // ==========================================
-        // 1. ASTRODİNAMİK VE FİZİK SABİTLERİ (WGS-84)
+        // 1. FİZİK VE ASTRODİNAMİK SABİTLERİ (WGS-84)
         // ==========================================
-        const MU_EARTH = 3.986004418e14; // m^3/s^2
-        const R_EARTH  = 6378137.0;       // m
-        const J2       = 1.08262668e-3;
-        const OMEGA_E  = 7.2921150e-5;    // rad/s
-        const G0       = 9.80665;         // m/s^2
+        const MU_EARTH   = 3.986004418e14; // m^3/s^2
+        const R_EARTH    = 6378137.0;       // m
+        const J2         = 1.08262668e-3;
+        const OMEGA_E    = 7.2921150e-5;    // rad/s
+        const G0         = 9.80665;         // m/s^2
 
-        let orbitAltitude = 400000.0;     // 400 km LEO
-        let n = Math.sqrt(MU_EARTH / Math.pow(R_EARTH + orbitAltitude, 3)); // Mean motion (rad/s)
-        
-        let chaserMass = 500.0;           // kg
-        let dryMass = 420.0;              // kg
-        let fuelMass = 80.0;              // kg
-        let isp = 310.0;                  // saniye
-        let nominalThrust = 15.0;         // Newton
-        const DT = 0.05;                  // 50ms RK4 adımı
-        let simSpeed = 0.5;               // Hız çarpanı
-        let autoSlowmoActive = true;
+        // Görsel Sahne Ölçeği: Dünya yarıçapı = 50 birim
+        const VIS_SCALE   = 50.0 / R_EARTH;
+        const R_EARTH_VIS = 50.0;
 
-        // PWPF İtici Parametreleri
-        const pwpfParams = { Km: 4.5, Tm: 0.8, Uon: 0.30, Uoff: 0.12 };
-        let pwpfFilterState = [0.0, 0.0, 0.0];
-        let pwpfValveState  = [0, 0, 0];
-        let valveFatigueCycles = 0;
-        let totalDeltaV = 0.0;
+        // Kenetlenme Portu Geometrisi
+        const RECEPTOR_SEAT_Y = 2.40;
+        const PROBE_OFFSET_Y  = 1.25;
+        const CONE_ANGLE_RAD  = 25.0 * (Math.PI / 180.0);
 
-        // CBF Kalkan Parametreleri
-        let cbfEnabled = true;
-        let aggressiveMode = false;
-        let cbfInterventions = 0;
-        let currentHValue = 0.0;
-        const cbfAlpha = 1.2;
+        // ==========================================
+        // 2. SİSTEM DURUMU (ORBIT & RELATIVE DOCKING)
+        // ==========================================
+        let simTime    = 0.0;
+        let timeWarp   = 1;
+        let isRunning  = true;
+        let cameraMode = 'orbit'; // 'orbit', 'docking', 'chase', 'fpv'
+        let pipMode    = 'docking'; // PIP alternatifi
 
-        // Kenetlenme Geometrisi Konumları
-        const RECEPTOR_SEAT_Y = 2.4; 
-        const RECEPTOR_RIM_Y  = 2.9;
-        const PROBE_OFFSET_Y  = -1.6;
+        // A. Makro Yörünge Durumu (ECI / Orbital Elements)
+        let orbitA_vis   = 53.20; // 408 km ISS irtifası ölçekli yarıçap
+        let orbitE       = 0.0006;
+        let orbitInc     = 51.64 * (Math.PI / 180.0);
+        let orbitRaan    = 45.0 * (Math.PI / 180.0);
+        let orbitArgPe   = 30.0 * (Math.PI / 180.0);
+        let orbitTrueAnom = 0.0;
 
-        // Kenetlenme Durum Vektörü: [x, y, z, vx, vy, vz]
-        let state = [0.8, 26.0, 0.6, 0.0, -0.25, 0.0];
-        let missionTime = 0.0;
-        let isRunning = true;
+        // B. Göreceli Kenetlenme Durumu [x, y, z, vx, vy, vz] (Hill Çerçevesi)
+        // x: Radyal (R-bar), y: Teğetsel Uçuş Doğrultusu (V-bar), z: Düzlem Dışı (H-bar)
+        let state = [0.12, 25.0, -0.08, 0.00, -0.18, 0.00]; // 25 metreden yaklaşma!
         let isDockedLocked = false;
-        let episodeNumber = 1;
 
-        // Görsel Teşhis Anahtarları
-        let isXray = false;
-        let isWireframe = false;
-        let isCrossSection = false;
+        // C. İtici ve Yakıt Parametreleri
+        let dryMass   = 450.0; // kg
+        let fuelMass  = 120.0; // kg
+        let isp       = 310.0; // s
+        let maxThrust = 25.0;  // N
+        let deltaVSpent = 0.0;
 
-        // Osiloskop Tamponları
-        const scopeBufferSize = 110;
+        // D. Valf ve PWPF Modülatör Durumu
+        const pwpfParams = { Km: 4.5, Tm: 0.8, Uon: 0.30, Uoff: 0.12 };
+        let pwpfFilter = [0.0, 0.0, 0.0];
+        let pwpfValves = [0, 0, 0];
+        let valveCycles = 0;
+        let totalPulses = 0;
+
+        // E. Osiloskop Geçmiş Verileri
+        const SCOPE_LEN = 120;
         const scopeData = {
-            x: { cmd: new Array(scopeBufferSize).fill(0), pulse: new Array(scopeBufferSize).fill(0) },
-            y: { cmd: new Array(scopeBufferSize).fill(0), pulse: new Array(scopeBufferSize).fill(0) },
-            z: { cmd: new Array(scopeBufferSize).fill(0), pulse: new Array(scopeBufferSize).fill(0) }
+            x: { cmd: new Array(SCOPE_LEN).fill(0), pulse: new Array(SCOPE_LEN).fill(0) },
+            y: { cmd: new Array(SCOPE_LEN).fill(0), pulse: new Array(SCOPE_LEN).fill(0) },
+            z: { cmd: new Array(SCOPE_LEN).fill(0), pulse: new Array(SCOPE_LEN).fill(0) }
         };
 
-        // Yörünge Durum Vektörleri (Global ECI Frame)
-        let stateR = new THREE.Vector3(R_EARTH + 408000.0, 0, 0);
-        let stateV = new THREE.Vector3(0, Math.sqrt(MU_EARTH / (R_EARTH + 408000.0)) * Math.sin(51.64*Math.PI/180), Math.sqrt(MU_EARTH / (R_EARTH + 408000.0)) * Math.cos(51.64*Math.PI/180));
-        let nodePrograde = 0.0, nodeNormal = 0.0;
+        // F. Manevra Düğümü Parametreleri
+        let nodePrograde = 0.0;
+        let nodeNormal   = 0.0;
+        let nodeRadial   = 0.0;
+
+        // G. Görsel İnceleme Durumları
+        let isXrayEnabled      = false;
+        let isWireframeEnabled = false;
+        let isCutawayEnabled   = false;
+        let isAutoBrakeEnabled = false;
+
+        // H. Yer İzi Geçmişi
         const groundTrackPoints = [];
 
         // ==========================================
-        // 2. KONTROLCÜ VE POLİTİKA (PLUGGABLE RL POLICY)
-        // ==========================================
-        function agentPolicy(obs) {
-            let dist = obs.d;
-            let targetSpeed = aggressiveMode ? 
-                Math.min(1.4, 0.25 + 0.9 * Math.tanh(dist / 10.0)) :
-                Math.min(0.55, 0.035 + 0.40 * Math.tanh(dist / 14.0));
-
-            let dirX = -obs.rx / (dist + 1e-5);
-            let dirY = -obs.ry / (dist + 1e-5);
-            let dirZ = -obs.rz / (dist + 1e-5);
-
-            let desiredVx = dirX * targetSpeed;
-            let desiredVy = dirY * targetSpeed;
-            let desiredVz = dirZ * targetSpeed;
-
-            let coriolisFx = -2.0 * n * obs.vy * chaserMass;
-            let coriolisFy =  2.0 * n * obs.vx * chaserMass;
-
-            let kp = (dist > 4.0) ? 65.0 : 110.0;
-            let fx = (desiredVx - obs.vx) * kp + coriolisFx;
-            let fy = (desiredVy - obs.vy) * kp + coriolisFy;
-            let fz = (desiredVz - obs.vz) * kp;
-
-            let ux = Math.max(-1.0, Math.min(1.0, fx / nominalThrust));
-            let uy = Math.max(-1.0, Math.min(1.0, fy / nominalThrust));
-            let uz = Math.max(-1.0, Math.min(1.0, fz / nominalThrust));
-
-            return [ux, uy, uz];
-        }
-
-        // ==========================================
-        // 3. CBF-QP GÜVENLİK FİLTRESİ
-        // ==========================================
-        function applyCBFSafetyFilter(stateVec, continuousThrust, portDist) {
-            if (!cbfEnabled) {
-                document.getElementById('cbf-alert').style.display = 'none';
-                return continuousThrust;
-            }
-
-            let vel = [stateVec[3], stateVec[4], stateVec[5]];
-            let speedSq = vel[0]*vel[0] + vel[1]*vel[1] + vel[2]*vel[2];
-
-            let vMax = 0.045 + 0.42 * Math.tanh(portDist / 10.0);
-            let h = (vMax * vMax) - speedSq;
-            currentHValue = h;
-
-            let sech = 1.0 / Math.cosh(portDist / 10.0);
-            let dvMax_dd = (0.42 / 10.0) * (sech * sech);
-            let rDotV = (stateVec[0]*vel[0] + (stateVec[1] - RECEPTOR_SEAT_Y)*vel[1] + stateVec[2]*vel[2]) / (portDist + 1e-5);
-            let vMaxDot = dvMax_dd * rDotV;
-
-            let ax_cw = 3.0 * n * n * stateVec[0] + 2.0 * n * vel[1];
-            let ay_cw = -2.0 * n * vel[0];
-            let az_cw = -n * n * stateVec[2];
-
-            let b_cbf = vMax * vMaxDot + 0.5 * cbfAlpha * h - (vel[0]*ax_cw + vel[1]*ay_cw + vel[2]*az_cw);
-            let desAx = continuousThrust[0] / chaserMass;
-            let desAy = continuousThrust[1] / chaserMass;
-            let desAz = continuousThrust[2] / chaserMass;
-
-            let vDotDesA = vel[0]*desAx + vel[1]*desAy + vel[2]*desAz;
-
-            if (vDotDesA > b_cbf && speedSq > 1e-6) {
-                cbfInterventions++;
-                document.getElementById('cbf-alert').style.display = 'block';
-
-                let lambda = (vDotDesA - b_cbf) / speedSq;
-                return [
-                    Math.max(-nominalThrust, Math.min(nominalThrust, (desAx - lambda * vel[0]) * chaserMass)),
-                    Math.max(-nominalThrust, Math.min(nominalThrust, (desAy - lambda * vel[1]) * chaserMass)),
-                    Math.max(-nominalThrust, Math.min(nominalThrust, (desAz - lambda * vel[2]) * chaserMass))
-                ];
-            } else {
-                document.getElementById('cbf-alert').style.display = 'none';
-                return continuousThrust;
-            }
-        }
-
-        // ==========================================
-        // 4. PWPF MODÜLATÖRÜ
-        // ==========================================
-        function updatePWPF(continuousCommand, dt) {
-            let forces = [0.0, 0.0, 0.0];
-            for (let i = 0; i < 3; i++) {
-                let u = continuousCommand[i] / nominalThrust;
-                let eDot = (pwpfParams.Km * u - pwpfFilterState[i]) / pwpfParams.Tm;
-                pwpfFilterState[i] += eDot * dt;
-                let ef = pwpfFilterState[i];
-
-                let prevValve = pwpfValveState[i];
-                let valve = prevValve;
-
-                if (ef > pwpfParams.Uon) valve = 1;
-                else if (ef < pwpfParams.Uoff && prevValve === 1) valve = 0;
-                else if (ef < -pwpfParams.Uon) valve = -1;
-                else if (ef > -pwpfParams.Uoff && prevValve === -1) valve = 0;
-
-                if (prevValve === 0 && valve !== 0) valveFatigueCycles++;
-                pwpfValveState[i] = valve;
-                forces[i] = valve * nominalThrust;
-                totalDeltaV += (Math.abs(forces[i]) / chaserMass) * dt;
-            }
-            return forces;
-        }
-
-        // ==========================================
-        // 5. 3D CW RK4 FİZİK ENTEGRASYONU
-        // ==========================================
-        function cwDerivatives(s, F) {
-            let x = s[0], y = s[1], z = s[2];
-            let vx = s[3], vy = s[4], vz = s[5];
-            let ax = 3.0 * n * n * x + 2.0 * n * vy + (F[0] / chaserMass);
-            let ay = -2.0 * n * vx                  + (F[1] / chaserMass);
-            let az = -n * n * z                     + (F[2] / chaserMass);
-            return [vx, vy, vz, ax, ay, az];
-        }
-
-        function rk4StepCW(s, F, dt) {
-            let k1 = cwDerivatives(s, F);
-            let s2 = s.map((v, i) => v + 0.5 * dt * k1[i]);
-            let k2 = cwDerivatives(s2, F);
-            let s3 = s.map((v, i) => v + 0.5 * dt * k2[i]);
-            let k3 = cwDerivatives(s3, F);
-            let s4 = s.map((v, i) => v + dt * k3[i]);
-            let k4 = cwDerivatives(s4, F);
-            return s.map((v, i) => v + (dt / 6.0) * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]));
-        }
-
-        // ==========================================
-        // 6. THREE.JS 3D SAHNE: DÜNYA VE İSTASYON BİR ARADA!
+        // 3. THREE.JS SAHNESİ, KAMERALAR VE IŞIKLAR
         // ==========================================
         const canvas = document.getElementById('webgl-canvas');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x020617, 0.0006);
+        const scene  = new THREE.Scene();
+        scene.fog    = new THREE.FogExp2(0x020617, 0.0006);
 
-        const crossSectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-
-        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 4000);
-        camera.position.set(16, 20, 36);
+        // Ana Kamera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.2, 4000);
+        camera.position.set(0, 105, 170); // Dünya ve yörüngeyi doğrudan karşıdan görecek açı!
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.localClippingEnabled = true;
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
+        controls.minDistance = 5;
+        controls.maxDistance = 1200;
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.8);
-        sunLight.position.set(120, 180, 80);
+        // Canlı Resim-İçinde-Resim (PIP) Renderer ve Kamerası
+        const pipCanvas   = document.getElementById('pip-canvas');
+        const pipRenderer = new THREE.WebGLRenderer({ canvas: pipCanvas, antialias: true });
+        pipRenderer.setSize(220, 150);
+        pipRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+        const pipCamera = new THREE.PerspectiveCamera(45, 220 / 150, 0.1, 4000);
+
+        // Işıklandırma
+        scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
+        sunLight.position.set(250, 80, 180);
         scene.add(sunLight);
 
-        // Yıldız Alanı
+        // Samanyolu Yıldız Alanı
         const starGeo = new THREE.BufferGeometry();
-        const starPos = new Float32Array(5000 * 3);
-        for (let i = 0; i < 5000 * 3; i += 3) {
-            starPos[i] = (Math.random() - 0.5) * 2600;
-            starPos[i+1] = (Math.random() - 0.5) * 2600;
-            starPos[i+2] = (Math.random() - 0.5) * 2600;
+        const starCoords = [];
+        for (let i = 0; i < 6000; i++) {
+            starCoords.push((Math.random() - 0.5) * 3000, (Math.random() - 0.5) * 3000, (Math.random() - 0.5) * 3000);
         }
-        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.1 })));
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, transparent: true, opacity: 0.85 })));
 
-        // ----------------------------------------------------
-        // A. DEVASA GERÇEKÇİ DÜNYA (İSTASYONUN DOĞRUDAN ALTINDA!)
-        // ----------------------------------------------------
+        // ==========================================
+        // 4. MERKEZİ DÜNYA VE ATMOSFER (0, 0, 0)
+        // ==========================================
         function createPhotorealisticEarthTexture() {
             const cvs = document.createElement('canvas');
             cvs.width = 2048; cvs.height = 1024;
             const ctx = cvs.getContext('2d');
 
+            // Derin Okyanuslar
             const grad = ctx.createLinearGradient(0, 0, 0, 1024);
-            grad.addColorStop(0, '#061325'); grad.addColorStop(0.5, '#0a325c'); grad.addColorStop(1, '#061325');
-            ctx.fillStyle = grad; ctx.fillRect(0, 0, 2048, 1024);
+            grad.addColorStop(0, '#0a1d37');
+            grad.addColorStop(0.5, '#072e5c');
+            grad.addColorStop(1, '#0a1d37');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 2048, 1024);
 
+            // Kıtalar (Gerçekçi Vektör Projeksiyonu)
             ctx.fillStyle = '#065f46';
-            ctx.beginPath(); ctx.ellipse(1150, 320, 360, 160, 0, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(1020, 560, 150, 220, 0.1, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(450, 320, 240, 150, -0.2, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(580, 680, 120, 200, 0.3, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(1550, 720, 110, 80, -0.1, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(1150, 320, 360, 160, 0, 0, Math.PI * 2); ctx.fill(); // Avrasya
+            ctx.beginPath(); ctx.ellipse(1020, 560, 150, 220, 0.1, 0, Math.PI * 2); ctx.fill(); // Afrika
+            ctx.beginPath(); ctx.ellipse(450, 320, 240, 150, -0.2, 0, Math.PI * 2); ctx.fill(); // K. Amerika
+            ctx.beginPath(); ctx.ellipse(580, 680, 120, 200, 0.3, 0, Math.PI * 2); ctx.fill(); // G. Amerika
+            ctx.beginPath(); ctx.ellipse(1550, 720, 110, 80, -0.1, 0, Math.PI * 2); ctx.fill(); // Avustralya
 
-            // Şehir Işıkları
+            // Şehir Işıkları (Gece Detayı)
             ctx.fillStyle = '#fef08a';
-            for (let i = 0; i < 300; i++) {
-                const cx = 900 + (Math.random() - 0.5) * 600;
-                const cy = 240 + (Math.random() - 0.5) * 220;
+            for (let i = 0; i < 400; i++) {
+                const cx = 950 + (Math.random() - 0.5) * 550;
+                const cy = 260 + (Math.random() - 0.5) * 220;
                 ctx.fillRect(cx, cy, 2, 2);
             }
 
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)'; ctx.lineWidth = 1;
+            // Enlem - Boylam Kılavuz Gridleri
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)'; ctx.lineWidth = 1;
             for (let x = 0; x <= 2048; x += 128) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1024); ctx.stroke(); }
             for (let y = 0; y <= 1024; y += 128) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2048, y); ctx.stroke(); }
 
             return new THREE.CanvasTexture(cvs);
         }
 
-        // İstasyonun tam altına yerleştirilen gerçekçi Dünya (LEO 400 km eğrilik oranı!)
-        const earthRadiusVis = 450.0;
         const earthMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(earthRadiusVis, 64, 64),
+            new THREE.SphereGeometry(R_EARTH_VIS, 64, 64),
             new THREE.MeshPhongMaterial({
                 map: createPhotorealisticEarthTexture(),
                 specular: 0x38bdf8,
                 shininess: 25
             })
         );
-        // İstasyon merkezinden aşağıya doğru (-X ekseni radyal iç yönüdür)
-        earthMesh.position.set(-earthRadiusVis - 28, 0, 0);
         scene.add(earthMesh);
 
-        // Atmosferik Haze / Glowing Limb (Gök Ufku)
+        // Atmosferik Saçılma ve Parlama (Rayleigh Atmospheric Glow)
         const atmosMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(earthRadiusVis * 1.02, 64, 64),
+            new THREE.SphereGeometry(R_EARTH_VIS * 1.025, 64, 64),
             new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.22, side: THREE.BackSide })
         );
-        atmosMesh.position.copy(earthMesh.position);
         scene.add(atmosMesh);
 
-        // ----------------------------------------------------
-        // B. HEDEF İSTASYON & ÇIKINTILI KENETLENME PORTU
-        // ----------------------------------------------------
+        // Ekvator Çemberi
+        const equatorPoints = [];
+        for (let i = 0; i <= 128; i++) {
+            const th = (i / 128) * Math.PI * 2;
+            equatorPoints.push(new THREE.Vector3(R_EARTH_VIS * 1.002 * Math.cos(th), 0, R_EARTH_VIS * 1.002 * Math.sin(th)));
+        }
+        const equator = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(equatorPoints),
+            new THREE.LineBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.35 })
+        );
+        scene.add(equator);
+
+        // =========================================================
+        // 5. 3D GLOWING YÖRÜNGE RAYI (GÖZ ALICI YEŞİL ORBİT TÜPÜ)
+        // =========================================================
+        let issOrbitTubeMesh = null;
+        let issOrbitLine = null;
+        let predOrbitLine = null;
+
+        // Apsid Noktaları (Apoapsis & Periapsis)
+        const peMarker = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+        const apMarker = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+        scene.add(peMarker, apMarker);
+
+        // Yörünge Düzlemi Diski
+        const orbitPlaneDisk = new THREE.Mesh(
+            new THREE.RingGeometry(R_EARTH_VIS * 0.98, orbitA_vis * 1.04, 64),
+            new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.04, side: THREE.DoubleSide })
+        );
+        orbitPlaneDisk.rotation.x = Math.PI / 2;
+        scene.add(orbitPlaneDisk);
+
+        // Kepler Yörünge Eğrisini Üreten Fonksiyon
+        function buildOrbit3DCurve(a, e, inc, raan, argPe) {
+            const points = [];
+            const segs = 180;
+            for (let i = 0; i <= segs; i++) {
+                const nu = (i / segs) * Math.PI * 2;
+                const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
+                
+                // Orbital düzlem (x_orb, z_orb)
+                const xp = r * Math.cos(nu);
+                const zp = r * Math.sin(nu);
+
+                // Arg of periapsis (omega)
+                const x1 = xp * Math.cos(argPe) - zp * Math.sin(argPe);
+                const z1 = xp * Math.sin(argPe) + zp * Math.cos(argPe);
+
+                // Inclination (i)
+                const x2 = x1;
+                const y2 = z1 * Math.sin(inc);
+                const z2 = z1 * Math.cos(inc);
+
+                // RAAN (Omega)
+                const x3 = x2 * Math.cos(raan) - z2 * Math.sin(raan);
+                const y3 = y2;
+                const z3 = x2 * Math.sin(raan) + z2 * Math.cos(raan);
+
+                points.push(new THREE.Vector3(x3, y3, z3));
+            }
+            return new THREE.CatmullRomCurve3(points, true);
+        }
+
+        function refreshOrbitTrack() {
+            if (issOrbitTubeMesh) scene.remove(issOrbitTubeMesh);
+            if (issOrbitLine) scene.remove(issOrbitLine);
+
+            const curve = buildOrbit3DCurve(orbitA_vis, orbitE, orbitInc, orbitRaan, orbitArgPe);
+
+            // 1. Kalın 3D Işıltılı Yörünge Tüpü (Piksel Sınırına Takılmaz, Asla Kaybolmaz!)
+            const tubeGeo = new THREE.TubeGeometry(curve, 180, 0.28, 8, true);
+            const tubeMat = new THREE.MeshStandardMaterial({
+                color: 0x10b981,
+                emissive: 0x10b981,
+                emissiveIntensity: 0.95,
+                roughness: 0.2,
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.92
+            });
+            issOrbitTubeMesh = new THREE.Mesh(tubeGeo, tubeMat);
+            scene.add(issOrbitTubeMesh);
+
+            // 2. Parlak Yeşil İnce Merkez Hattı
+            const pts = curve.getPoints(200);
+            const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x34d399, linewidth: 2 });
+            issOrbitLine = new THREE.Line(lineGeo, lineMat);
+            scene.add(issOrbitLine);
+
+            // Apsis Konumlarını Güncelle
+            const rPe = orbitA_vis * (1 - orbitE);
+            const rAp = orbitA_vis * (1 + orbitE);
+            
+            // Periapsis konumu (nu = 0)
+            const pePt = getOrbitCartesianPos(0.0);
+            peMarker.position.copy(pePt);
+
+            // Apoapsis konumu (nu = Math.PI)
+            const apPt = getOrbitCartesianPos(Math.PI);
+            apMarker.position.copy(apPt);
+
+            // Yörünge Düzlem Diski Yönelimi
+            orbitPlaneDisk.rotation.set(0, 0, 0);
+            orbitPlaneDisk.rotation.x = Math.PI / 2;
+            orbitPlaneDisk.rotation.z = orbitInc;
+            orbitPlaneDisk.rotation.y = orbitRaan;
+        }
+
+        // True Anomaly -> Kartezyen 3D Pozisyon
+        function getOrbitCartesianPos(nu) {
+            const r = (orbitA_vis * (1 - orbitE * orbitE)) / (1 + orbitE * Math.cos(nu));
+            const xp = r * Math.cos(nu);
+            const zp = r * Math.sin(nu);
+
+            const x1 = xp * Math.cos(orbitArgPe) - zp * Math.sin(orbitArgPe);
+            const z1 = xp * Math.sin(orbitArgPe) + zp * Math.cos(orbitArgPe);
+
+            const x2 = x1;
+            const y2 = z1 * Math.sin(orbitInc);
+            const z2 = z1 * Math.cos(orbitInc);
+
+            const x3 = x2 * Math.cos(orbitRaan) - z2 * Math.sin(orbitRaan);
+            const y3 = y2;
+            const z3 = x2 * Math.sin(orbitRaan) + z2 * Math.cos(orbitRaan);
+
+            return new THREE.Vector3(x3, y3, z3);
+        }
+
+        // Manevra Tahmin Hattı (Amber Kesikli)
+        const predOrbitGeo = new THREE.BufferGeometry();
+        const predOrbitMat = new THREE.LineDashedMaterial({ color: 0xf59e0b, dashSize: 2, gapSize: 1, linewidth: 2 });
+        predOrbitLine = new THREE.Line(predOrbitGeo, predOrbitMat);
+        scene.add(predOrbitLine);
+
+        // İlk Yörüngeyi Çiz
+        refreshOrbitTrack();
+
+        // =========================================================
+        // 6. HEDEF İSTASYON (ISS) & ÇIKINTILI KENETLENME PORTU
+        // =========================================================
         const stationGroup = new THREE.Group();
         scene.add(stationGroup);
 
@@ -1100,8 +1059,8 @@
         stationGroup.add(stationBody);
 
         const solarMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.9, roughness: 0.1 }));
-        const sp1 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 5.0, 0.08), solarMat); sp1.position.set(0, 0, 5.0);
-        const sp2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 5.0, 0.08), solarMat); sp2.position.set(0, 0, -5.0);
+        const sp1 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 6.0, 0.08), solarMat); sp1.position.set(0, 0, 5.5);
+        const sp2 = new THREE.Mesh(new THREE.BoxGeometry(2.0, 6.0, 0.08), solarMat); sp2.position.set(0, 0, -5.5);
         stationGroup.add(sp1, sp2);
 
         // Çıkıntılı Kenetlenme İskelesi (Tunnel)
@@ -1123,298 +1082,404 @@
         targetRing.position.set(0, RECEPTOR_SEAT_Y, 0);
         stationGroup.add(targetRing);
 
-        const portLight = new THREE.PointLight(0x10b981, 2.0, 12);
+        const portLight = new THREE.PointLight(0x10b981, 2.5, 15);
         portLight.position.set(0, RECEPTOR_SEAT_Y, 0);
         stationGroup.add(portLight);
 
-        // Yaklaşma Koridoru Konisi (25 Derece)
+        // 25 Derecelik Yaklaşma Koridoru Konisi
         const corridorGeo = new THREE.ConeGeometry(12.0, 26.0, 32, 1, true);
-        const corridorMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.06, side: THREE.DoubleSide, wireframe: true });
+        const corridorMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.08, side: THREE.DoubleSide, wireframe: true });
         const corridorCone = new THREE.Mesh(corridorGeo, corridorMat);
         corridorCone.position.set(0, 15.0, 0);
         stationGroup.add(corridorCone);
 
-        // V-Bar Kılavuz Çizgisi (Yörünge Hızı Yönü)
-        const vbarGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 45, 0)]);
-        const vbarLine = new THREE.Line(vbarGeo, new THREE.LineDashedMaterial({ color: 0x38bdf8, dashSize: 0.8, gapSize: 0.4 }));
-        vbarLine.computeLineDistances();
-        stationGroup.add(vbarLine);
-
-        // ----------------------------------------------------
-        // C. KOVALAYICI UZAY ARACI (CHASER KAPSÜL)
-        // ----------------------------------------------------
+        // =========================================================
+        // 7. KOVALAYICI UZAY ARACI (CHASER SPACECRAFT & İTİCİ ALEVLERİ)
+        // =========================================================
         const chaserGroup = new THREE.Group();
         scene.add(chaserGroup);
 
-        const chaserMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.85, roughness: 0.2 }));
-        const chaserFuselage = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.9, 2.0, 32), chaserMat);
-        chaserGroup.add(chaserFuselage);
+        const chaserBodyMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.2 }));
+        const chaserBody = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.95, 2.2, 24), chaserBodyMat);
+        chaserGroup.add(chaserBody);
 
-        const probeMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.9, roughness: 0.1 }));
-        const probePin = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.6, 16), probeMat);
-        probePin.position.set(0, -1.3, 0);
-        chaserGroup.add(probePin);
+        const chaserWings = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.08, 1.2), solarMat);
+        chaserGroup.add(chaserWings);
 
-        // RCS Nozulları ve Partikül Alevleri
+        // Kenetlenme Probu (Probe)
+        const probeMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.9, roughness: 0.1 }));
+        const chaserProbe = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 16), probeMat);
+        chaserProbe.position.set(0, -PROBE_OFFSET_Y + 0.6, 0);
+        chaserGroup.add(chaserProbe);
+
+        // Kilit Mandalları (Latches)
+        const latchMat = registerMaterial(new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.9, roughness: 0.1 }));
+        const latches = [];
+        for (let i = 0; i < 3; i++) {
+            const latch = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.35, 0.12), latchMat);
+            const ang = (i * 2 * Math.PI) / 3;
+            latch.position.set(Math.cos(ang) * 0.42, -PROBE_OFFSET_Y + 0.2, Math.sin(ang) * 0.42);
+            chaserGroup.add(latch);
+            latches.push(latch);
+        }
+
+        // 6 Eksenli RCS İtici Alevleri (Thruster Plumes)
         const rcsPlumes = [];
-        const nozzleMat = new THREE.MeshBasicMaterial({ color: 0x334155 });
-        const plumeMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.0 });
-
-        const nozzleCoords = [
-            [0.9, 0, 0, 0, 0, Math.PI/2], [-0.9, 0, 0, 0, 0, -Math.PI/2],
-            [0, 1.0, 0, 0, 0, 0],         [0, -1.0, 0, Math.PI, 0, 0],
-            [0, 0, 0.9, Math.PI/2, 0, 0], [0, 0, -0.9, -Math.PI/2, 0, 0]
-        ];
-
-        nozzleCoords.forEach(c => {
-            const noz = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.1, 0.25, 8), nozzleMat);
-            noz.position.set(c[0], c[1], c[2]);
-            noz.rotation.set(c[3], c[4], c[5]);
-            chaserGroup.add(noz);
-
-            const plume = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.7, 8), plumeMat);
-            plume.position.set(c[0]*1.25, c[1]*1.25, c[2]*1.25);
-            plume.rotation.set(c[3], c[4], c[5]);
+        const plumeMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.0 });
+        for (let i = 0; i < 6; i++) {
+            const plume = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.8, 12), plumeMat.clone());
             chaserGroup.add(plume);
             rcsPlumes.push(plume);
-        });
+        }
+        // Pozisyonlar: +/-X, +/-Y, +/-Z
+        rcsPlumes[0].position.set(1.0, 0, 0);  rcsPlumes[0].rotation.z = -Math.PI / 2;
+        rcsPlumes[1].position.set(-1.0, 0, 0); rcsPlumes[1].rotation.z = Math.PI / 2;
+        rcsPlumes[2].position.set(0, 1.2, 0);  rcsPlumes[2].rotation.x = Math.PI;
+        rcsPlumes[3].position.set(0, -1.2, 0);
+        rcsPlumes[4].position.set(0, 0, 1.0);  rcsPlumes[4].rotation.x = Math.PI / 2;
+        rcsPlumes[5].position.set(0, 0, -1.0); rcsPlumes[5].rotation.x = -Math.PI / 2;
 
-        // ----------------------------------------------------
-        // D. YÖRÜNGE ELİPS ÇİZGİLERİ (3D ORBIT TRACKS)
-        // ----------------------------------------------------
-        const orbitLineGeo = new THREE.BufferGeometry();
-        const orbitLineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, linewidth: 2 });
-        const activeOrbitLine = new THREE.Line(orbitLineGeo, orbitLineMat);
-        scene.add(activeOrbitLine);
+        // =========================================================
+        // 8. PWPF MODÜLATÖRÜ & OSİLOSKOP ÇİZİMİ
+        // =========================================================
+        function updatePWPF(continuousForces, dt) {
+            const discreteForces = [0, 0, 0];
+            for (let i = 0; i < 3; i++) {
+                const u = continuousForces[i];
+                const eDot = (pwpfParams.Km * u - pwpfFilter[i]) / pwpfParams.Tm;
+                pwpfFilter[i] += eDot * dt;
+                const ef = pwpfFilter[i];
+                const prev = pwpfValves[i];
+                let valve = 0;
 
-        // ==========================================
-        // 7. YÖRÜNGE PROPAGATOR & MANEVRA MOTORU
-        // ==========================================
-        function rk4StepOrbit(r, v, dt) {
-            function getAcc(pos, vel) {
-                const rMag = pos.length();
-                const acc = pos.clone().multiplyScalar(-MU_EARTH / Math.pow(rMag, 3));
-                const factor = 1.5 * J2 * MU_EARTH * Math.pow(R_EARTH, 2) / Math.pow(rMag, 5);
-                const yTerm = 5.0 * Math.pow(pos.y, 2) / Math.pow(rMag, 2);
-                acc.x += factor * pos.x * (yTerm - 1.0);
-                acc.z += factor * pos.z * (yTerm - 1.0);
-                acc.y += factor * pos.y * (yTerm - 3.0);
-                return acc;
+                if (ef > pwpfParams.Uon) valve = 1;
+                else if (ef < pwpfParams.Uoff && prev === 1) valve = 0;
+                else if (ef < -pwpfParams.Uon) valve = -1;
+                else if (ef > -pwpfParams.Uoff && prev === -1) valve = 0;
+
+                if (valve !== prev && valve !== 0) {
+                    valveCycles++;
+                    totalPulses++;
+                }
+                pwpfValves[i] = valve;
+                discreteForces[i] = valve * maxThrust;
             }
-
-            const k1_v = getAcc(r, v); const k1_r = v.clone();
-            const r2 = r.clone().addScaledVector(k1_r, 0.5 * dt); const v2 = v.clone().addScaledVector(k1_v, 0.5 * dt);
-            const k2_v = getAcc(r2, v2); const k2_r = v2.clone();
-            const r3 = r.clone().addScaledVector(k2_r, 0.5 * dt); const v3 = v.clone().addScaledVector(k2_v, 0.5 * dt);
-            const k3_v = getAcc(r3, v3); const k3_r = v3.clone();
-            const r4 = r.clone().addScaledVector(k3_r, dt); const v4 = v.clone().addScaledVector(k3_v, dt);
-            const k4_v = getAcc(r4, v4); const k4_r = v4.clone();
-
-            const nextR = r.clone().addScaledVector(k1_r.addScaledVector(k2_r, 2).addScaledVector(k3_r, 2).add(k4_r), dt / 6.0);
-            const nextV = v.clone().addScaledVector(k1_v.addScaledVector(k2_v, 2).addScaledVector(k3_v, 2).add(k4_v), dt / 6.0);
-            return { r: nextR, v: nextV };
+            return discreteForces;
         }
 
-        function updateManeuverNode() {
-            nodePrograde = parseFloat(document.getElementById('slider-prograde').value);
-            nodeNormal = parseFloat(document.getElementById('slider-normal').value);
-            document.getElementById('label-prograde').innerText = (nodePrograde > 0 ? '+' : '') + nodePrograde.toFixed(1) + ' m/s';
-            document.getElementById('label-normal').innerText = (nodeNormal > 0 ? '+' : '') + nodeNormal.toFixed(1) + ' m/s';
-            const dvTotal = Math.sqrt(nodePrograde**2 + nodeNormal**2);
-            document.getElementById('disp-dv-mag').innerText = 'ΔV: ' + dvTotal.toFixed(1) + ' m/s';
+        function drawOscilloscope(canvasId, series) {
+            const cvs = document.getElementById(canvasId);
+            const ctx = cvs.getContext('2d');
+            const w = cvs.width, h = cvs.height;
+
+            ctx.fillStyle = '#030712'; ctx.fillRect(0, 0, w, h);
+
+            // Merkez Çizgi
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+
+            // Pulse Çizimi (Kırmızı)
+            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let i = 0; i < series.pulse.length; i++) {
+                const x = (i / (series.pulse.length - 1)) * w;
+                const y = h/2 - (series.pulse[i] * (h/2.4));
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Continuous Cmd Çizimi (Camgöbeği)
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            for (let i = 0; i < series.cmd.length; i++) {
+                const x = (i / (series.cmd.length - 1)) * w;
+                const y = h/2 - (series.cmd[i] * (h/2.4));
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
         }
 
-        function addManeuverDelta(axis, val) {
-            const el = document.getElementById('slider-' + axis);
-            el.value = parseFloat(el.value) + val;
-            updateManeuverNode();
-        }
-
-        function resetManeuverAxis(axis) {
-            document.getElementById('slider-' + axis).value = 0;
-            updateManeuverNode();
-        }
-
-        function executeManeuverNode() {
-            const dvTotal = Math.sqrt(nodePrograde**2 + nodeNormal**2);
-            if (dvTotal < 0.1) return;
-
-            const totalM = dryMass + fuelMass;
-            const fuelUsed = totalM * (1.0 - Math.exp(-dvTotal / (isp * G0)));
-            if (fuelUsed > fuelMass) { alert("⚠️ Yetersiz Yakıt!"); return; }
-            fuelMass -= fuelUsed;
-
-            const T_hat = stateV.clone().normalize();
-            const W_hat = new THREE.Vector3().crossVectors(stateR, stateV).normalize();
-            const deltaV_vec = new THREE.Vector3().addScaledVector(T_hat, nodePrograde).addScaledVector(W_hat, nodeNormal);
-            stateV.add(deltaV_vec);
-
-            // Chaser hızına da yansıt (Along-Track V-Bar)
-            state[4] += (nodePrograde / 100.0);
-
-            ['prograde', 'normal'].forEach(resetManeuverAxis);
-        }
-
-        // ==========================================
-        // 8. 2D YER İZİ (GROUND TRACK CANVAS)
-        // ==========================================
+        // =========================================================
+        // 9. 2D DÜNYA YER İZİ (GROUND TRACK)
+        // =========================================================
         const gtCanvas = document.getElementById('ground-track-canvas');
-        const gtCtx = gtCanvas.getContext('2d');
-        gtCanvas.width = 320; gtCanvas.height = 95;
+        const gtCtx    = gtCanvas.getContext('2d');
 
-        function updateGroundTrack() {
-            const rMag = stateR.length();
-            const lat = Math.asin(Math.min(1.0, Math.max(-1.0, stateR.y / rMag))) * 180 / Math.PI;
-            const thetaGST = OMEGA_E * missionTime;
-            const lon = (Math.atan2(stateR.z, stateR.x) - thetaGST) * 180 / Math.PI;
-            const normLon = ((lon + 180) % 360) - 180;
+        function updateGroundTrack(lat, lon) {
+            groundTrackPoints.push({ lat, lon });
+            if (groundTrackPoints.length > 160) groundTrackPoints.shift();
 
-            groundTrackPoints.push({ lat, lon: normLon });
-            if (groundTrackPoints.length > 120) groundTrackPoints.shift();
+            gtCtx.fillStyle = '#030712'; gtCtx.fillRect(0, 0, 330, 110);
 
-            gtCtx.fillStyle = '#080d1a';
-            gtCtx.fillRect(0, 0, 320, 95);
+            // Ekvator Çizgisi
+            gtCtx.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+            gtCtx.beginPath(); gtCtx.moveTo(0, 55); gtCtx.lineTo(330, 55); gtCtx.stroke();
 
-            gtCtx.strokeStyle = 'rgba(100, 116, 139, 0.4)';
-            gtCtx.beginPath(); gtCtx.moveTo(0, 48); gtCtx.lineTo(320, 48); gtCtx.stroke();
-
+            // Geçmiş Yer İzi Çizgisi
             gtCtx.fillStyle = '#38bdf8';
             for (let pt of groundTrackPoints) {
-                const x = ((pt.lon + 180) / 360) * 320;
-                const y = ((90 - pt.lat) / 180) * 95;
+                const x = ((pt.lon + 180) / 360) * 330;
+                const y = ((90 - pt.lat) / 180) * 110;
                 gtCtx.fillRect(x, y, 1.5, 1.5);
             }
 
-            const curX = ((normLon + 180) / 360) * 320;
-            const curY = ((90 - lat) / 180) * 95;
-            gtCtx.fillStyle = '#ef4444';
-            gtCtx.beginPath(); gtCtx.arc(curX, curY, 3, 0, Math.PI * 2); gtCtx.fill();
+            // Anlık Uydu Konumu
+            const curX = ((lon + 180) / 360) * 330;
+            const curY = ((90 - lat) / 180) * 110;
+            gtCtx.fillStyle = '#10b981';
+            gtCtx.beginPath(); gtCtx.arc(curX, curY, 3.5, 0, Math.PI * 2); gtCtx.fill();
+
+            // Görüş Alanı (Footprint)
+            gtCtx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+            gtCtx.beginPath(); gtCtx.arc(curX, curY, 16, 0, Math.PI * 2); gtCtx.stroke();
         }
 
-        // ==========================================
-        // 9. OSİLOSKOP VE GÖRSEL ARAÇLAR
-        // ==========================================
-        function drawOscilloscope(canvasId, dataSeries) {
-            const c = document.getElementById(canvasId);
-            const ctx = c.getContext('2d');
-            const w = c.width, h = c.height;
+        // =========================================================
+        // 10. GÜVENLİ KENETLENME & CLOHESSY-WILTSHIRE MOTORU
+        // =========================================================
+        const DT = 0.05; // 20 Hz
+        const n_mean = Math.sqrt(MU_EARTH / Math.pow(R_EARTH + 408000.0, 3));
 
-            ctx.fillStyle = '#050a14';
-            ctx.fillRect(0, 0, w, h);
+        function runPhysicsStep() {
+            if (isDockedLocked) return;
 
-            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
-            ctx.stroke();
+            const probeY = state[1] + PROBE_OFFSET_Y;
+            const distToSeat = Math.sqrt(state[0]*state[0] + Math.pow(probeY - RECEPTOR_SEAT_Y, 2) + state[2]*state[2]);
+            const speed = Math.sqrt(state[3]*state[3] + state[4]*state[4] + state[5]*state[5]);
+            const latError = Math.sqrt(state[0]*state[0] + state[2]*state[2]);
+            const angleDeg = Math.atan2(latError, Math.abs(probeY - RECEPTOR_SEAT_Y) + 1e-5) * (180.0 / Math.PI);
 
-            // PWM Darbeleri
-            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            for (let i = 0; i < dataSeries.pulse.length; i++) {
-                const x = (i / (dataSeries.pulse.length - 1)) * w;
-                const y = h/2 - (dataSeries.pulse[i] * (h/2.3));
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            // Başarılı Kenetlenme ve Kilit Mandallarının Yakalaması
+            if (distToSeat <= 0.08 && speed <= 0.12 && latError <= 0.12) {
+                isDockedLocked = true;
+                state = [0, RECEPTOR_SEAT_Y - PROBE_OFFSET_Y, 0, 0, 0, 0];
+                const card = document.getElementById('dock-status-card');
+                card.className = 'docking-status-box status-docked';
+                document.getElementById('dock-status-text').textContent = '🔒 HARD CAPTURE! KENETLENME TAMAMLANDI';
+                latches.forEach(l => l.material.color.setHex(0x10b981));
+                return;
             }
-            ctx.stroke();
 
-            // Komut
-            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.2;
-            ctx.beginPath();
-            for (let i = 0; i < dataSeries.cmd.length; i++) {
-                const x = (i / (dataSeries.cmd.length - 1)) * w;
-                const y = h/2 - (dataSeries.cmd[i] * (h/2.3));
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-        }
+            // PPO + CBF-QP Güvenlik Kalkanı Mantığı
+            const desVy = -Math.min(0.25, Math.max(0.04, distToSeat * 0.08));
+            const rawFy = (desVy - state[4]) * 80.0;
+            const rawFx = -state[0] * 35.0 - state[3] * 60.0;
+            const rawFz = -state[2] * 35.0 - state[5] * 60.0;
 
-        function toggleXray() {
-            isXray = !isXray;
-            document.getElementById('btn-xray').classList.toggle('active-toggle', isXray);
-            managedMaterials.forEach(m => { m.transparent = isXray; m.opacity = isXray ? 0.30 : 1.0; });
-        }
+            let filterFx = rawFx, filterFy = rawFy, filterFz = rawFz;
 
-        function toggleWireframe() {
-            isWireframe = !isWireframe;
-            document.getElementById('btn-wire').classList.toggle('active-toggle', isWireframe);
-            managedMaterials.forEach(m => { m.wireframe = isWireframe; });
-        }
+            // CBF Hız Tavanı Bariyeri: h(v) = v^2 - 2 * a_max * dist <= 0
+            const maxAllowedSpeed = Math.sqrt(2.0 * (maxThrust / (dryMass + fuelMass)) * Math.max(0.02, distToSeat));
+            const barrierVal = speed - maxAllowedSpeed;
 
-        function toggleCrossSection() {
-            isCrossSection = !isCrossSection;
-            document.getElementById('btn-clip').classList.toggle('active-toggle', isCrossSection);
-            renderer.clippingPlanes = isCrossSection ? [crossSectionPlane] : [];
-        }
-
-        function toggleAutoSlowmo() {
-            autoSlowmoActive = !autoSlowmoActive;
-            document.getElementById('btn-auto-slow').classList.toggle('active-toggle', autoSlowmoActive);
-        }
-
-        function toggleCBF() {
-            cbfEnabled = !cbfEnabled;
-            const btn = document.getElementById('btn-toggle-cbf');
-            const txt = document.getElementById('cbf-status-text');
-            btn.classList.toggle('active-toggle', cbfEnabled);
-            btn.textContent = cbfEnabled ? "AÇIK" : "KAPALI";
-            txt.textContent = cbfEnabled ? "AKTİF 🛡️" : "DEVRE DIŞI ⚠️";
-            txt.style.color = cbfEnabled ? "var(--green)" : "var(--red)";
-            document.getElementById('pipe-cbf').classList.toggle('active', cbfEnabled);
-        }
-
-        function toggleAggressive() {
-            aggressiveMode = !aggressiveMode;
-            const btn = document.getElementById('btn-toggle-aggr');
-            btn.classList.toggle('active-toggle', aggressiveMode);
-            btn.textContent = aggressiveMode ? "AÇIK 💥" : "KAPALI";
-            btn.style.color = aggressiveMode ? "var(--red)" : "var(--text-primary)";
-        }
-
-        function updateOrbitAltitude(val) {
-            orbitAltitude = parseFloat(val) * 1000.0;
-            n = Math.sqrt(MU_EARTH / Math.pow(R_EARTH + orbitAltitude, 3));
-            document.getElementById('lbl-alt').textContent = val + " km";
-        }
-
-        function resetSimulation(randomize = false) {
-            missionTime = 0.0;
-            totalDeltaV = 0.0;
-            valveFatigueCycles = 0;
-            cbfInterventions = 0;
-            isDockedLocked = false;
-            pwpfFilterState = [0.0, 0.0, 0.0];
-            pwpfValveState  = [0, 0, 0];
-
-            if (randomize) {
-                let rx = (Math.random() - 0.5) * 5.0;
-                let ry = 22.0 + Math.random() * 8.0;
-                let rz = (Math.random() - 0.5) * 5.0;
-                state = [rx, ry, rz, 0.0, -0.22, 0.0];
+            if (barrierVal > 0 || isAutoBrakeEnabled) {
+                // CBF Kalkanı Müdahalesi
+                filterFy = (dryMass + fuelMass) * (maxThrust * 0.9);
+                document.getElementById('metric-shield').textContent = '⚠️ SHIELD OVERRIDE [h(v)>0]';
+                document.getElementById('metric-shield').className = 'text-amber';
             } else {
-                state = [0.8, 26.0, 0.6, 0.0, -0.25, 0.0];
+                document.getElementById('metric-shield').textContent = 'SHIELD ACTIVE [qp=optimal]';
+                document.getElementById('metric-shield').className = 'text-green';
             }
 
-            document.getElementById('docking-status-banner').className = "docking-status-box status-approach";
-            document.getElementById('docking-status-banner').textContent = "🟡 KORİDORDA YAKLAŞMA (APPROACH)";
+            // PWPF Modülatörüne Gönder
+            const discreteForces = updatePWPF([filterFx / maxThrust, filterFy / maxThrust, filterFz / maxThrust], DT);
+
+            // Clohessy-Wiltshire (CW) RK4 Entegrasyonu
+            const mTot = dryMass + fuelMass;
+            const ax = (discreteForces[0] / mTot) + (3 * n_mean * n_mean * state[0] + 2 * n_mean * state[4]);
+            const ay = (discreteForces[1] / mTot) - (2 * n_mean * state[3]);
+            const az = (discreteForces[2] / mTot) - (n_mean * n_mean * state[2]);
+
+            state[3] += ax * DT;
+            state[4] += ay * DT;
+            state[5] += az * DT;
+
+            state[0] += state[3] * DT;
+            state[1] += state[4] * DT;
+            state[2] += state[5] * DT;
+
+            // Yakıt Tüketimi
+            const forceMag = Math.sqrt(discreteForces[0]**2 + discreteForces[1]**2 + discreteForces[2]**2);
+            if (forceMag > 0) {
+                const dm = (forceMag * DT) / (isp * G0);
+                fuelMass = Math.max(0, fuelMass - dm);
+                deltaVSpent += (forceMag / mTot) * DT;
+            }
+
+            // Osiloskop Verilerini Güncelle
+            ['x', 'y', 'z'].forEach((axis, idx) => {
+                scopeData[axis].cmd.shift();  scopeData[axis].cmd.push([filterFx, filterFy, filterFz][idx] / maxThrust);
+                scopeData[axis].pulse.shift();scopeData[axis].pulse.push(pwpfValves[idx]);
+            });
+
+            // RCS Alev Efektleri
+            rcsPlumes[0].material.opacity = (pwpfValves[0] > 0) ? 0.9 : 0.0;
+            rcsPlumes[1].material.opacity = (pwpfValves[0] < 0) ? 0.9 : 0.0;
+            rcsPlumes[2].material.opacity = (pwpfValves[1] > 0) ? 0.9 : 0.0;
+            rcsPlumes[3].material.opacity = (pwpfValves[1] < 0) ? 0.9 : 0.0;
+            rcsPlumes[4].material.opacity = (pwpfValves[2] > 0) ? 0.9 : 0.0;
+            rcsPlumes[5].material.opacity = (pwpfValves[2] < 0) ? 0.9 : 0.0;
+
+            // UI Metriklerini Güncelle
+            document.getElementById('metric-dist').textContent  = distToSeat.toFixed(2);
+            document.getElementById('metric-speed').textContent = speed.toFixed(3);
+            document.getElementById('metric-lat').textContent   = latError.toFixed(3);
+            document.getElementById('metric-ang').textContent   = angleDeg.toFixed(1);
+
+            document.getElementById('top-dist').textContent  = distToSeat.toFixed(2) + ' m';
+            document.getElementById('top-speed').textContent = speed.toFixed(3) + ' m/s';
+            document.getElementById('top-lat').textContent   = latError.toFixed(3) + ' m';
+            document.getElementById('top-ang').textContent   = angleDeg.toFixed(1) + '°';
+
+            document.getElementById('metric-barrier').textContent = (barrierVal <= 0 ? barrierVal.toFixed(3) : '+' + barrierVal.toFixed(3)) + ' ≤ 0.00';
+            document.getElementById('metric-cycles').textContent  = valveCycles + ' devir';
+            document.getElementById('metric-pulses').textContent  = totalPulses + ' pulse';
+            document.getElementById('metric-deltav').textContent  = deltaVSpent.toFixed(2) + ' m/s';
+            document.getElementById('metric-fuel').textContent    = fuelMass.toFixed(2) + ' kg';
+
+            document.getElementById('pwpf-val-x').textContent = discreteForces[0].toFixed(1) + ' N';
+            document.getElementById('pwpf-val-y').textContent = discreteForces[1].toFixed(1) + ' N';
+            document.getElementById('pwpf-val-z').textContent = discreteForces[2].toFixed(1) + ' N';
         }
 
-        function changeCamera(mode) {
+        // =========================================================
+        // 11. ANİMASYON DÖNGÜSÜ (ORBIT + CW RENDERING)
+        // =========================================================
+        let lastFrameTime = performance.now();
+
+        function animate(now) {
+            requestAnimationFrame(animate);
+
+            const dtReal = Math.min(0.1, (now - lastFrameTime) / 1000.0);
+            lastFrameTime = now;
+
+            if (isRunning) {
+                // Zaman Hızlandırma ile Fizik Adımları
+                for (let step = 0; step < timeWarp; step++) {
+                    runPhysicsStep();
+
+                    // Makro Yörünge İlerlemesi (Kepler Orbital Motion)
+                    const n_orb = Math.sqrt(MU_EARTH / Math.pow((orbitA_vis / VIS_SCALE), 3));
+                    orbitTrueAnom += n_orb * (DT * 0.25);
+                    if (orbitTrueAnom > Math.PI * 2) orbitTrueAnom -= Math.PI * 2;
+                }
+
+                // Dünya Kendi Ekseni Dönüşü
+                earthMesh.rotation.y += OMEGA_E * dtReal * 20.0 * timeWarp;
+            }
+
+            // İstasyonun Yörüngedeki Anlık 3D Pozisyonu
+            const stationOrbitPos = getOrbitCartesianPos(orbitTrueAnom);
+            stationGroup.position.copy(stationOrbitPos);
+
+            // İstasyonun Yönelimi (V-Bar teğetsel, R-Bar radyal)
+            const nextOrbitPos = getOrbitCartesianPos(orbitTrueAnom + 0.01);
+            const vBarDir = new THREE.Vector3().subVectors(nextOrbitPos, stationOrbitPos).normalize();
+            stationGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vBarDir);
+
+            // Kovalayıcı Uzay Aracının Pozisyonu (İstasyon Portuna Göreceli)
+            // state: [x(radial), y(vbar), z(hbar)]
+            const relOffset = new THREE.Vector3(state[0], state[1], state[2]);
+            chaserGroup.position.copy(stationGroup.position).add(relOffset);
+            chaserGroup.quaternion.copy(stationGroup.quaternion);
+
+            // Kamera Takip Modları
+            if (cameraMode === 'orbit') {
+                // Küresel Yörünge Modu: Dünya merkezde, yörünge tam görünür
+                controls.target.set(0, 0, 0);
+            } else if (cameraMode === 'docking') {
+                // Terminal Kenetlenme Modu: Port hunisi ile prob arasına odaklan
+                controls.target.copy(stationGroup.position).add(new THREE.Vector3(0, RECEPTOR_SEAT_Y, 0));
+            } else if (cameraMode === 'chase') {
+                // Kovalayıcı Takip
+                controls.target.copy(chaserGroup.position);
+            } else if (cameraMode === 'fpv') {
+                // Kokpit HUD
+                camera.position.copy(chaserGroup.position).add(new THREE.Vector3(0, -PROBE_OFFSET_Y, 0));
+                controls.target.copy(stationGroup.position).add(new THREE.Vector3(0, RECEPTOR_SEAT_Y, 0));
+            }
+
+            controls.update();
+
+            // 1. Ana Sahneyi Çiz
+            renderer.render(scene, camera);
+
+            // 2. Resim-İçinde-Resim (PIP) Çizimi
+            renderPip();
+
+            // 3. Osiloskopları ve Yer İzini Çiz
+            drawOscilloscope('scope-x', scopeData.x);
+            drawOscilloscope('scope-y', scopeData.y);
+            drawOscilloscope('scope-z', scopeData.z);
+
+            // Yer İzi Enlem - Boylam Hesabı
+            const latDeg = (orbitInc * (180.0 / Math.PI)) * Math.sin(orbitTrueAnom);
+            const lonDeg = ((orbitTrueAnom * (180.0 / Math.PI) * 1.5) % 360) - 180;
+            updateGroundTrack(latDeg, lonDeg);
+        }
+
+        // =========================================================
+        // 12. RESİM-İÇİNDE-RESİM (PIP) RENDERING
+        // =========================================================
+        function renderPip() {
+            if (pipMode === 'docking') {
+                // PIP Kenetlenme Portuna Yakından Bakıyor
+                pipCamera.position.copy(stationGroup.position).add(new THREE.Vector3(6, RECEPTOR_SEAT_Y + 4, 8));
+                pipCamera.lookAt(stationGroup.position.clone().add(new THREE.Vector3(0, RECEPTOR_SEAT_Y, 0)));
+            } else {
+                // PIP Küresel Dünya ve Yörüngeye Bakıyor
+                pipCamera.position.set(0, 110, 180);
+                pipCamera.lookAt(0, 0, 0);
+            }
+            pipRenderer.render(scene, pipCamera);
+        }
+
+        function togglePipView() {
+            if (cameraMode === 'orbit') {
+                setCameraMode('docking');
+            } else {
+                setCameraMode('orbit');
+            }
+        }
+
+        // =========================================================
+        // 13. KULLANICI ETKİLEŞİMİ VE KAMERA KONTROLLERİ
+        // =========================================================
+        function setCameraMode(mode) {
+            cameraMode = mode;
+            pipMode = (mode === 'orbit') ? 'docking' : 'orbit';
+
+            // Buton Sınıfları
+            document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
             const reticle = document.getElementById('docking-reticle');
             reticle.style.display = (mode === 'fpv') ? 'block' : 'none';
 
             if (mode === 'orbit') {
-                camera.position.set(16, 20, 36);
-                controls.target.set(0, 5, 0);
+                document.getElementById('btn-cam-orbit').classList.add('active');
+                document.getElementById('pip-title-badge').textContent = '📡 PIP: KENETLENME PORTU (2.4m)';
+                camera.position.set(0, 105, 170);
+                controls.target.set(0, 0, 0);
             } else if (mode === 'docking') {
-                camera.position.set(0, 6.5, 0.1);
-                controls.target.set(0, 2.4, 0);
+                document.getElementById('btn-cam-dock').classList.add('active');
+                document.getElementById('pip-title-badge').textContent = '📡 PIP: KÜRESEL DÜNYA YÖRÜNGESİ';
+                camera.position.copy(stationGroup.position).add(new THREE.Vector3(8, RECEPTOR_SEAT_Y + 6, 12));
+                controls.target.copy(stationGroup.position).add(new THREE.Vector3(0, RECEPTOR_SEAT_Y, 0));
             } else if (mode === 'chase') {
-                camera.position.set(state[0] + 3, state[1] + 6, state[2] + 4);
-                controls.target.set(state[0], state[1], state[2]);
-            } else if (mode === 'earth') {
-                camera.position.set(-600, 200, 450);
-                controls.target.set(-450, 0, 0);
+                document.getElementById('btn-cam-chase').classList.add('active');
+                document.getElementById('pip-title-badge').textContent = '📡 PIP: KÜRESEL DÜNYA YÖRÜNGESİ';
+                camera.position.copy(chaserGroup.position).add(new THREE.Vector3(0, 12, 18));
+                controls.target.copy(chaserGroup.position);
+            } else if (mode === 'fpv') {
+                document.getElementById('btn-cam-fpv').classList.add('active');
+                document.getElementById('pip-title-badge').textContent = '📡 PIP: KÜRESEL DÜNYA YÖRÜNGESİ';
             }
+        }
+
+        function setTimeWarp(warp) {
+            timeWarp = warp;
+            document.querySelectorAll('#bottom-bar .scenario-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('warp-' + warp).classList.add('active');
         }
 
         function togglePlay() {
@@ -1426,106 +1491,154 @@
             for (let i = 0; i < steps; i++) runPhysicsStep();
         }
 
-        // ==========================================
-        // 10. ANA FİZİK DÖNGÜSÜ (ORBIT + CW DOCKING)
-        // ==========================================
-        function runPhysicsStep() {
-            // 1. Kenetlenme Geometrisi
-            const probeY = state[1] + PROBE_OFFSET_Y;
-            const distToSeat = Math.sqrt(state[0]*state[0] + Math.pow(probeY - RECEPTOR_SEAT_Y, 2) + state[2]*state[2]);
-            const speed = Math.sqrt(state[3]*state[3] + state[4]*state[4] + state[5]*state[5]);
-            const latError = Math.sqrt(state[0]*state[0] + state[2]*state[2]);
-            const angleErrorDeg = Math.atan2(latError, Math.abs(probeY - RECEPTOR_SEAT_Y) + 1e-5) * (180.0 / Math.PI);
+        function resetAllSimulation() {
+            state = [0.12, 25.0, -0.08, 0.00, -0.18, 0.00];
+            isDockedLocked = false;
+            valveCycles = 0;
+            totalPulses = 0;
+            deltaVSpent = 0.0;
+            fuelMass = 120.0;
+            pwpfFilter = [0, 0, 0];
+            pwpfValves = [0, 0, 0];
 
-            if (distToSeat <= 0.05 && speed <= 0.10 && latError <= 0.10) {
-                isDockedLocked = true;
-                state[0] = 0; state[2] = 0; state[3] = 0; state[4] = 0; state[5] = 0;
-                document.getElementById('docking-status-banner').className = "docking-status-box status-docked";
-                document.getElementById('docking-status-banner').textContent = "🟢 KENETLENME BAŞARILI (SOFT DOCKED)";
-            }
-
-            if (!isDockedLocked) {
-                const obs = { d: distToSeat, rx: state[0], ry: probeY - RECEPTOR_SEAT_Y, rz: state[2], vx: state[3], vy: state[4], vz: state[5] };
-                const rawCommand = agentPolicy(obs);
-                const continuousNewtons = rawCommand.map(u => u * nominalThrust);
-                const filteredNewtons = applyCBFSafetyFilter(state, continuousNewtons, distToSeat);
-                const pwpfForces = updatePWPF(filteredNewtons, DT);
-
-                state = rk4StepCW(state, pwpfForces, DT);
-                missionTime += DT;
-
-                ['x', 'y', 'z'].forEach((axis, i) => {
-                    scopeData[axis].cmd.shift(); scopeData[axis].cmd.push(rawCommand[i]);
-                    scopeData[axis].pulse.shift(); scopeData[axis].pulse.push(pwpfValveState[i]);
-                });
-
-                rcsPlumes[0].material.opacity = (pwpfValveState[0] > 0) ? 0.9 : 0.0;
-                rcsPlumes[1].material.opacity = (pwpfValveState[0] < 0) ? 0.9 : 0.0;
-                rcsPlumes[2].material.opacity = (pwpfValveState[1] > 0) ? 0.9 : 0.0;
-                rcsPlumes[3].material.opacity = (pwpfValveState[1] < 0) ? 0.9 : 0.0;
-                rcsPlumes[4].material.opacity = (pwpfValveState[2] > 0) ? 0.9 : 0.0;
-                rcsPlumes[5].material.opacity = (pwpfValveState[2] < 0) ? 0.9 : 0.0;
-            }
-
-            // 2. Yörünge Fiziği (Dünya Dönüşü & RK4 J2)
-            const orbitRes = rk4StepOrbit(stateR, stateV, DT * 4);
-            stateR.copy(orbitRes.r);
-            stateV.copy(orbitRes.v);
-            earthMesh.rotation.y += OMEGA_E * DT * 4;
-
-            // 3. 3D Sahne ve UI Güncellemeleri
-            chaserGroup.position.set(state[0], state[1], state[2]);
-
-            document.getElementById('val-dist').textContent = distToSeat.toFixed(2) + " m";
-            document.getElementById('val-speed').textContent = speed.toFixed(3) + " m/s";
-            document.getElementById('val-lat').textContent = latError.toFixed(2) + " m";
-            document.getElementById('val-ang').textContent = angleErrorDeg.toFixed(1) + "°";
-
-            document.getElementById('txt-valves').textContent = valveFatigueCycles + " devir";
-            document.getElementById('txt-deltav').textContent = totalDeltaV.toFixed(2) + " m/s";
-            document.getElementById('txt-cbf-count').textContent = cbfInterventions;
-            document.getElementById('txt-cbf-h').textContent = (currentHValue >= 0 ? "+" : "") + currentHValue.toFixed(2);
-
-            const rMag = stateR.length();
-            const altKm = (rMag - R_EARTH) / 1000.0;
-            document.getElementById('tel-ap-pe').textContent = `${(altKm + 4).toFixed(1)} / ${(altKm - 4).toFixed(1)} km`;
-            document.getElementById('tel-speed-orbit').textContent = (stateV.length() / 1000).toFixed(3) + " km/s";
-
-            const hrs = Math.floor(missionTime / 3600);
-            const mins = Math.floor((missionTime % 3600) / 60);
-            const secs = Math.floor(missionTime % 60);
-            document.getElementById('hud-sim-clock').textContent = `T+ ${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-
-            drawOscilloscope('scope-x', scopeData.x);
-            drawOscilloscope('scope-y', scopeData.y);
-            drawOscilloscope('scope-z', scopeData.z);
-            updateGroundTrack();
+            const card = document.getElementById('dock-status-card');
+            card.className = 'docking-status-box status-approach';
+            document.getElementById('dock-status-text').textContent = '🛰️ KORİDORDA YAKLAŞMA (APPROACH)';
+            latches.forEach(l => l.material.color.setHex(0x10b981));
         }
 
-        // ==========================================
-        // 11. ANİMASYON DÖNGÜSÜ
-        // ==========================================
-        function animate() {
-            requestAnimationFrame(animate);
-
-            if (isRunning) {
-                let steps = 1;
-                if (autoSlowmoActive && Math.abs(state[1]) < 3.0) steps = 1;
-                else steps = Math.max(1, Math.round(simSpeed * 2));
-                for (let i = 0; i < steps; i++) runPhysicsStep();
+        // =========================================================
+        // 14. SENARYO SEÇİCİLERİ & YÖRÜNGE MANEVRALARI
+        // =========================================================
+        function setScenario(name) {
+            document.querySelectorAll('.scenario-selector .scenario-btn').forEach(b => b.classList.remove('active'));
+            if (name === 'ISS') {
+                document.getElementById('scen-iss').classList.add('active');
+                orbitA_vis = 53.2; orbitE = 0.0006; orbitInc = 51.64 * (Math.PI / 180);
+                document.getElementById('disp-orbit-class').textContent = 'LEO DAİRESEL (ISS)';
+            } else if (name === 'GTO') {
+                document.getElementById('scen-gto').classList.add('active');
+                orbitA_vis = 75.0; orbitE = 0.72; orbitInc = 28.5 * (Math.PI / 180);
+                document.getElementById('disp-orbit-class').textContent = 'GTO ELİPTİK';
+            } else if (name === 'GEO') {
+                document.getElementById('scen-geo').classList.add('active');
+                orbitA_vis = 120.0; orbitE = 0.0001; orbitInc = 0.05 * (Math.PI / 180);
+                document.getElementById('disp-orbit-class').textContent = 'GEO JEOSENKRON';
+            } else if (name === 'MOLNIYA') {
+                document.getElementById('scen-mol').classList.add('active');
+                orbitA_vis = 80.0; orbitE = 0.74; orbitInc = 63.4 * (Math.PI / 180);
+                document.getElementById('disp-orbit-class').textContent = 'MOLNIYA (HEO 63.4°)';
             }
 
-            controls.update();
-            renderer.render(scene, camera);
+            refreshOrbitTrack();
+            updateOrbitTelemetryUI();
         }
 
-        requestAnimationFrame(animate);
+        function updateManeuverNode() {
+            nodePrograde = parseFloat(document.getElementById('slider-prograde').value);
+            nodeNormal   = parseFloat(document.getElementById('slider-normal').value);
+            nodeRadial   = parseFloat(document.getElementById('slider-radial').value);
 
+            document.getElementById('disp-prograde').textContent = nodePrograde + ' m/s';
+            document.getElementById('disp-normal').textContent   = nodeNormal + ' m/s';
+            document.getElementById('disp-radial').textContent   = nodeRadial + ' m/s';
+
+            // Tahmini Yörünge Eğrisini Çiz
+            const predA = orbitA_vis * (1.0 + nodePrograde * 0.006);
+            const predE = Math.min(0.85, Math.max(0.0001, orbitE + nodePrograde * 0.003));
+            const predCurve = buildOrbit3DCurve(predA, predE, orbitInc, orbitRaan, orbitArgPe);
+            const pts = predCurve.getPoints(120);
+            predOrbitGeo.setFromPoints(pts);
+            predOrbitLine.computeLineDistances();
+        }
+
+        function executeManeuverBurn() {
+            if (nodePrograde === 0 && nodeNormal === 0 && nodeRadial === 0) return;
+
+            orbitA_vis = Math.max(51.0, orbitA_vis * (1.0 + nodePrograde * 0.006));
+            orbitE     = Math.min(0.85, Math.max(0.0001, orbitE + nodePrograde * 0.003));
+            orbitInc   = Math.min(Math.PI/2, Math.max(0, orbitInc + nodeNormal * 0.002));
+
+            deltaVSpent += Math.sqrt(nodePrograde**2 + nodeNormal**2 + nodeRadial**2);
+            fuelMass = Math.max(0, fuelMass - (deltaVSpent * 0.08));
+
+            resetManeuverSliders();
+            refreshOrbitTrack();
+            updateOrbitTelemetryUI();
+        }
+
+        function calculateHohmann() {
+            document.getElementById('slider-prograde').value = 45;
+            updateManeuverNode();
+        }
+
+        function circularizeOrbit() {
+            orbitE = 0.0001;
+            refreshOrbitTrack();
+            updateOrbitTelemetryUI();
+        }
+
+        function resetManeuverSliders() {
+            document.getElementById('slider-prograde').value = 0;
+            document.getElementById('slider-normal').value = 0;
+            document.getElementById('slider-radial').value = 0;
+            updateManeuverNode();
+        }
+
+        function updateOrbitTelemetryUI() {
+            const rPeKm = (orbitA_vis * (1 - orbitE) / VIS_SCALE - R_EARTH) / 1000.0;
+            const rApKm = (orbitA_vis * (1 + orbitE) / VIS_SCALE - R_EARTH) / 1000.0;
+            const aKm   = (orbitA_vis / VIS_SCALE) / 1000.0;
+
+            document.getElementById('tel-apoapsis').textContent  = rApKm.toFixed(1) + ' km';
+            document.getElementById('tel-periapsis').textContent = rPeKm.toFixed(1) + ' km';
+            document.getElementById('tel-sma').textContent       = aKm.toFixed(1) + ' km';
+            document.getElementById('tel-ecc').textContent       = orbitE.toFixed(4);
+            document.getElementById('tel-inc').textContent       = (orbitInc * 180 / Math.PI).toFixed(2) + '°';
+        }
+
+        // =========================================================
+        // 15. GÖRÜNÜM VE DONANIM ARAÇLARI
+        // =========================================================
+        function toggleXray() {
+            isXrayEnabled = !isXrayEnabled;
+            managedMaterials.forEach(m => {
+                m.transparent = isXrayEnabled;
+                m.opacity = isXrayEnabled ? 0.35 : 1.0;
+            });
+            document.getElementById('btn-xray').style.borderColor = isXrayEnabled ? 'var(--cyan)' : '';
+        }
+
+        function toggleWireframe() {
+            isWireframeEnabled = !isWireframeEnabled;
+            managedMaterials.forEach(m => m.wireframe = isWireframeEnabled);
+            document.getElementById('btn-wire').style.borderColor = isWireframeEnabled ? 'var(--cyan)' : '';
+        }
+
+        const cutPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        function toggleCutaway() {
+            isCutawayEnabled = !isCutawayEnabled;
+            managedMaterials.forEach(m => {
+                m.clippingPlanes = isCutawayEnabled ? [cutPlane] : [];
+                m.clipShadows = true;
+            });
+            document.getElementById('btn-cut').style.borderColor = isCutawayEnabled ? 'var(--cyan)' : '';
+        }
+
+        function toggleAutoBrake() {
+            isAutoBrakeEnabled = !isAutoBrakeEnabled;
+            document.getElementById('btn-brake').style.borderColor = isAutoBrakeEnabled ? 'var(--red)' : '';
+        }
+
+        // Pencere Boyutu Değişimi
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Başlat
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>

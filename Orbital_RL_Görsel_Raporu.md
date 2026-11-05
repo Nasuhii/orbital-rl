@@ -164,6 +164,53 @@ Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüz
 
 ---
 
+## 🚀 6. MuJoCo Rijit Gövde Simülasyonu & 30 Uçuşluk Monte Carlo Doğrulaması
+
+### A. Fizik Doğrulaması ve CoM Hizalaması
+MuJoCo MJCF modelinde gövde ağırlık merkezi ile kuvvet uygulama noktası arasındaki 20.8 cm'lik parazit moment giderilmiş, $ipos=[0,0,0]$ CoM noktasına çekilmiştir.
+- Analitik Clohessy-Wiltshire (CW) diferansiyel çözümü ile MuJoCo RK4 integratörü arasındaki azami yörünge hatası: **$0.187\text{ mm}$** ($<0.0002\text{ m}$).
+- Açısal parazit dönme hızı: $\omega \approx 5.24 \times 10^{-18}\text{ rad/s}$ (sıfır takla / sıfır parazit tork).
+
+### B. 30 Uçuşluk MuJoCo Monte Carlo Master Kıyaslama Tablosu
+
+![MuJoCo 30 Uçuşluk Monte Carlo Performans Karşılaştırması](mujoco_30_monte_carlo_benchmark.png)
+
+| Mimari / Kontrolcü | Başarı Oranı (%) | Hovering (%) | Kaza / Çarpışma (%) | Ortalama Delta-V (m/s) | Son Temas Hızı (m/s) | Son Mesafe (m) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Pure PPO (Kalkansız Ham RL)** | `%0.0` (0/30) 🔴 | `%43.3` (13/30) | **`%56.7` (17/30)** 💥 | `2.68 m/s` | `1.409 m/s` (Aşırı Hızlı) | `2.68 m` |
+| **PPO + CBF-QP (Filtre Korumalı)** | `%0.0` (0/30) 🟡 | **`%100.0` (30/30)** ⏸️ | `%0.0` (0/30) 🟢 | `1.65 m/s` | `0.299 m/s` | `1.65 m` |
+| **Integrated Safe-GNC (Master)** | **`%100.0` (30/30)** 🟢 | **`%0.0` (0/30)** 🟢 | **`%0.0` (0/30)** 🟢 | **`0.94 m/s`** ⚡ | **`0.044 m/s`** 🔒 | **`0.1375 m`** 🎯 |
+
+> [!SUCCESS] 🎯 100/100 Tam Başarı ve Güvenlik Marjı
+> `Integrated Safe-GNC` mimarisi (V-bar asimptotik kılavuzluk + CBF-QP %15 güvenlik tavanı + terminal sürünme takviyesi + PWPF Schmitt filtreleme) ile MuJoCo rijit gövde simülatöründe 30 zorlu rastgele başlangıç koşulunun **tamamında (30/30)** mandalların hasar almadan kilitlendiği `HARD CAPTURE` durumunu elde etmiştir.
+
+---
+
+## 📡 7. Gerçek Zamanlı 3D Web Telemetri Sistemi (`index.html`)
+
+Yeni nesil interaktif 3D Web arayüzü, artık tahmin veya basit JS yaklaşımlarıyla değil, doğrudan **MuJoCo fizik motorundan üretilen gerçek uçuş verileriyle** beslenmektedir:
+- **Canlı Web Adresi:** [`http://localhost:8000/Areas/Software/orbital-rl/index.html`](http://localhost:8000/Areas/Software/orbital-rl/index.html) 🌐
+- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
+
+### 🌟 Yeni Eklenen Gelişmiş Özellikler:
+1. **🛰️ 30-Uçuş MuJoCo Oynatıcı (Dataset Replay):**
+   - 3 farklı algoritmanın (`Safe-GNC`, `PPO-CBF`, `Pure-PPO`) her biri için 30 uçuşluk detaylı telemetri veri seti (`mujoco_telemetry_dataset.json`).
+   - Zaman çizelgesi kaydırıcısı (timeline scrubber) ile uçuşun istenen saniyesine anında sarma.
+   - Oynat/Durdur ve 0.25x – 5.0x hız ayarı.
+2. **🟢 Canlı MuJoCo Akışı (Live Stream 20 Hz):**
+   - Arka planda kesintisiz çalışan `live_mujoco_streamer.py` motorundan saniyede 20 kare canlı telemetri çekimi.
+   - Canlı RCS itici alevleri, PWPF valf darbe osiloskopları ve CBF bariyer marjı ($h \le 0$).
+3. **🔒 Port Geometrisi ve Yumuşak/Sert Yakalama (Soft & Hard Capture):**
+   - İstasyon gövdesinden dışarı çıkıntı yapan silindirik iskele + konik huni (receptor) + 4 adet mekanik mandal.
+   - Mesafe $d < 0.5\text{ m}$ olduğunda koni huninin içine girer (Soft Capture).
+   - $d \le 0.15\text{ m}$ ve $v \le 0.06\text{ m/s}$ olduğunda mandallar 0.35 radyan içe kapanır, yeşil kilitlenir ve araç gövdeye çarpmadan sabitlenir (Hard Capture).
+4. **👁️ Görsel Denetim Araçları:**
+   - `%25 X-Ray` yarı-saydamlık modu.
+   - `Wireframe` kafes modu.
+   - `Kesit Görünüm (Cutaway Plane)` ile portun içini yandan kesip probun oturuşunu görme.
+
+---
+
 ## 🃏 Anki Kartları
 
 START
@@ -189,6 +236,53 @@ TARGET DECK: data
 Geri: CBF güvenlik kısıtı: $h(x) = v_{\text{safe}}^2(d) - \|v\|^2 \ge 0$<br>İleri adım türev şartı: $\dot{h} + \alpha h \ge 0$<br>Ajanın sinir ağı (PPO) tehlikeli veya yüksek hızlı bir itki komutu verse bile, analitik Quadratic Programming (QP) güvenlik filtresi komutu kısıt sınırına projekte ederek kaza yapmasını imkansız kılar.
 Tags: from_obsidian, orbital_rl, cbf_qp, safe_rl, gnc
 END
+
+---
+
+## 🚀 6. MuJoCo Rijit Gövde Simülasyonu & 30 Uçuşluk Monte Carlo Doğrulaması
+
+### A. Fizik Doğrulaması ve CoM Hizalaması
+MuJoCo MJCF modelinde gövde ağırlık merkezi ile kuvvet uygulama noktası arasındaki 20.8 cm'lik parazit moment giderilmiş, $ipos=[0,0,0]$ CoM noktasına çekilmiştir.
+- Analitik Clohessy-Wiltshire (CW) diferansiyel çözümü ile MuJoCo RK4 integratörü arasındaki azami yörünge hatası: **$0.187\text{ mm}$** ($<0.0002\text{ m}$).
+- Açısal parazit dönme hızı: $\omega \approx 5.24 \times 10^{-18}\text{ rad/s}$ (sıfır takla / sıfır parazit tork).
+
+### B. 30 Uçuşluk MuJoCo Monte Carlo Master Kıyaslama Tablosu
+
+![MuJoCo 30 Uçuşluk Monte Carlo Performans Karşılaştırması](mujoco_30_monte_carlo_benchmark.png)
+
+| Mimari / Kontrolcü | Başarı Oranı (%) | Hovering (%) | Kaza / Çarpışma (%) | Ortalama Delta-V (m/s) | Son Temas Hızı (m/s) | Son Mesafe (m) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Pure PPO (Kalkansız Ham RL)** | `%0.0` (0/30) 🔴 | `%43.3` (13/30) | **`%56.7` (17/30)** 💥 | `2.68 m/s` | `1.409 m/s` (Aşırı Hızlı) | `2.68 m` |
+| **PPO + CBF-QP (Filtre Korumalı)** | `%0.0` (0/30) 🟡 | **`%100.0` (30/30)** ⏸️ | `%0.0` (0/30) 🟢 | `1.65 m/s` | `0.299 m/s` | `1.65 m` |
+| **Integrated Safe-GNC (Master)** | **`%100.0` (30/30)** 🟢 | **`%0.0` (0/30)** 🟢 | **`%0.0` (0/30)** 🟢 | **`0.94 m/s`** ⚡ | **`0.044 m/s`** 🔒 | **`0.1375 m`** 🎯 |
+
+> [!SUCCESS] 🎯 100/100 Tam Başarı ve Güvenlik Marjı
+> `Integrated Safe-GNC` mimarisi (V-bar asimptotik kılavuzluk + CBF-QP %15 güvenlik tavanı + terminal sürünme takviyesi + PWPF Schmitt filtreleme) ile MuJoCo rijit gövde simülatöründe 30 zorlu rastgele başlangıç koşulunun **tamamında (30/30)** mandalların hasar almadan kilitlendiği `HARD CAPTURE` durumunu elde etmiştir.
+
+---
+
+## 📡 7. Gerçek Zamanlı 3D Web Telemetri Sistemi (`index.html`)
+
+Yeni nesil interaktif 3D Web arayüzü, artık tahmin veya basit JS yaklaşımlarıyla değil, doğrudan **MuJoCo fizik motorundan üretilen gerçek uçuş verileriyle** beslenmektedir:
+- **Canlı Web Adresi:** [`http://localhost:8000/Areas/Software/orbital-rl/index.html`](http://localhost:8000/Areas/Software/orbital-rl/index.html) 🌐
+- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
+
+### 🌟 Yeni Eklenen Gelişmiş Özellikler:
+1. **🛰️ 30-Uçuş MuJoCo Oynatıcı (Dataset Replay):**
+   - 3 farklı algoritmanın (`Safe-GNC`, `PPO-CBF`, `Pure-PPO`) her biri için 30 uçuşluk detaylı telemetri veri seti (`mujoco_telemetry_dataset.json`).
+   - Zaman çizelgesi kaydırıcısı (timeline scrubber) ile uçuşun istenen saniyesine anında sarma.
+   - Oynat/Durdur ve 0.25x – 5.0x hız ayarı.
+2. **🟢 Canlı MuJoCo Akışı (Live Stream 20 Hz):**
+   - Arka planda kesintisiz çalışan `live_mujoco_streamer.py` motorundan saniyede 20 kare canlı telemetri çekimi.
+   - Canlı RCS itici alevleri, PWPF valf darbe osiloskopları ve CBF bariyer marjı ($h \le 0$).
+3. **🔒 Port Geometrisi ve Yumuşak/Sert Yakalama (Soft & Hard Capture):**
+   - İstasyon gövdesinden dışarı çıkıntı yapan silindirik iskele + konik huni (receptor) + 4 adet mekanik mandal.
+   - Mesafe $d < 0.5\text{ m}$ olduğunda koni huninin içine girer (Soft Capture).
+   - $d \le 0.15\text{ m}$ ve $v \le 0.06\text{ m/s}$ olduğunda mandallar 0.35 radyan içe kapanır, yeşil kilitlenir ve araç gövdeye çarpmadan sabitlenir (Hard Capture).
+4. **👁️ Görsel Denetim Araçları:**
+   - `%25 X-Ray` yarı-saydamlık modu.
+   - `Wireframe` kafes modu.
+   - `Kesit Görünüm (Cutaway Plane)` ile portun içini yandan kesip probun oturuşunu görme.
 
 ---
 

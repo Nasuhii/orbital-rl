@@ -5,3 +5,5 @@ __pycache__/
 logs/
 models/
 .DS_Store
+telemetry_live.json
+*.tmp

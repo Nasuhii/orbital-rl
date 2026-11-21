@@ -23,7 +23,7 @@ class OrbitalConfig:
     max_thrust: float = 15.0            # Newton (RCS 3 eksen itki tavanı: ±15 N)
 
     # 3. Kenetlenme ve Güvenlik Başarı Kriterleri (MANDATORY STANDARDS)
-    docking_radius: float = 0.15        # Metre (15 cm hedef kenetlenme port toleransı)
+    docking_radius: float = 0.14        # Metre (15 cm hedef kenetlenme port toleransı)
     max_docking_speed: float = 0.06     # m/s (6.0 cm/s maksimum yapısal temas hızı)
     docking_cone_angle_deg: float = 25.0# Derece (LOS koridor açısı)
     max_radial_departure: float = 60.0  # Metre (Yörüngeden savrulma/kaza limiti)

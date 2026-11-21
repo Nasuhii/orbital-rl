@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBITAL-RL // MuJoCo GNC Flight Dynamics Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-0: #05080f;
+            --bg-1: #090e1a;
+            --bg-2: #0f172a;
+            --border: #1e293b;
+            --border-hi: #334155;
+            --cyan: #38bdf8;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #ef4444;
+            --text-0: #f1f5f9;
+            --text-1: #94a3b8;
+            --text-2: #64748b;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-0);
+            color: var(--text-0);
+            font-family: var(--sans);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* TOP TELEMETRY & NAVIGATION HEADER */
+        header {
+            background: var(--bg-1);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 14px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px 16px;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sys-title {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--text-0);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sys-title .tag-sub {
+            color: var(--cyan);
+            font-weight: 500;
+        }
+
+        .status-pill {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: var(--emerald);
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .led {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            box-shadow: 0 0 6px var(--emerald);
+        }
+
+        /* UNIFIED 5-PAGE NAVIGATION BAR */
+        .nav-strip {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-0);
+            padding: 3px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-1);
+            font-family: var(--mono);
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 3px;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-link:hover {
+            color: var(--text-0);
+            background: var(--bg-2);
+        }
+
+        .nav-link.active {
+            color: var(--cyan);
+            background: rgba(56, 189, 248, 0.12);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .header-telemetry {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 11px;
+        }
+
+        .kv-chip {
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kv-chip .k { color: var(--text-2); font-size: 9.5px; }
+        .kv-chip .v { color: var(--text-0); font-weight: 600; }
+
+        /* MAIN WORKSPACE GRID */
+        main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(350px, 31vw, 440px);
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            gap: 8px;
+            padding: 8px;
+        }
+
+        /* LEFT COLUMN: OPTICAL / CAMERA VIEWPORT */
+        .video-container {
+            position: relative;
+            background: #020409;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .camera-viewport {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .camera-viewport img.stream-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* OUTCOME FX CANVAS & TECHNICAL ALERT OVERLAY */
+        #outcome-fx-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 18;
+        }
+
+        #outcome-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.92);
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+            padding: 16px 28px;
+            border-radius: 4px;
+            font-family: var(--mono);
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: opacity 0.18s ease, transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #outcome-banner.show-docked {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(5, 46, 22, 0.92);
+            border: 1px solid var(--emerald);
+            color: #ecfdf5;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.45);
+        }
+
+        #outcome-banner.show-crashed {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(69, 10, 10, 0.94);
+            border: 1px solid var(--rose);
+            color: #fef2f2;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.65);
+        }
+
+        #outcome-banner.show-hover {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            background: rgba(69, 26, 3, 0.92);
+            border: 1px solid var(--amber);
+            color: #fffbeb;
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.45);
+        }
+
+        #outcome-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        #outcome-sub {
+            font-size: 11px;
+            color: var(--text-1);
+        }
+
+        @keyframes viewport-crash-shake {
+            0%, 100% { transform: translate(0, 0); }
+            15% { transform: translate(-10px, 7px); }
+            30% { transform: translate(9px, -8px); }
+            45% { transform: translate(-7px, -5px); }
+            60% { transform: translate(6px, 5px); }
+            75% { transform: translate(-4px, 3px); }
+        }
+
+        .camera-viewport.crash-shake {
+            animation: viewport-crash-shake 0.5s ease-out;
+            box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.7);
+        }
+
+        .camera-viewport.dock-glow {
+            box-shadow: inset 0 0 70px rgba(16, 185, 129, 0.5);
+        }
+
+        /* PIP SECONDARY VIEWPORT */
+        .pip-container {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            width: 220px;
+            height: 140px;
+            background: var(--bg-1);
+            border: 1px solid var(--border-hi);
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.85);
+            cursor: pointer;
+            z-index: 15;
+        }
+
+        .pip-container:hover {
+            border-color: var(--cyan);
+        }
+
+        .pip-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pip-label {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 9px;
+            font-family: var(--mono);
+            font-weight: 600;
+            background: rgba(5, 8, 15, 0.85);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 2px;
+            color: var(--cyan);
+        }
+
+        /* HUD INSTRUMENT OVERLAY */
+        .hud-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .instrument-tape {
+            position: absolute;
+            top: 14px;
+            background: rgba(9, 14, 26, 0.86);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 8px 10px;
+            font-family: var(--mono);
+            min-width: 104px;
+        }
+
+        .instrument-tape.left { left: 14px; }
+        .instrument-tape.right { right: 14px; text-align: right; }
+
+        .tape-lbl { font-size: 9px; color: var(--text-2); letter-spacing: 0.6px; }
+        .tape-val { font-size: 18px; font-weight: 700; margin: 2px 0; }
+        .tape-lim { font-size: 9px; color: var(--text-1); }
+
+        .crosshair-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 170px;
+            height: 170px;
+        }
+
+        .crosshair-reticle {
+            width: 100%;
+            height: 100%;
+            border: 1px dashed rgba(56, 189, 248, 0.35);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .crosshair-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 54px;
+            height: 54px;
+            border: 1px solid rgba(16, 185, 129, 0.65);
+            border-radius: 50%;
+        }
+
+        /* BOTTOM CAMERA BAR */
+        .video-controls {
+            background: var(--bg-1);
+            border-top: 1px solid var(--border);
+            padding: 6px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            z-index: 12;
+        }
+
+        .cam-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .btn-cam {
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            color: var(--text-1);
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 10.5px;
+            font-weight: 600;
+            font-family: var(--mono);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-cam:hover, .btn-cam.active {
+            background: rgba(56, 189, 248, 0.14);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* RIGHT SIDEBAR: ENGINEERING TELEMETRY DECK */
+        .telemetry-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .telemetry-sidebar::-webkit-scrollbar { width: 4px; }
+        .telemetry-sidebar::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+        .telemetry-card {
+            background: var(--bg-1);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 9px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: var(--text-1);
+        }
+
+        .dock-status-banner {
+            border-radius: 3px;
+            padding: 7px 10px;
+            font-weight: 700;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .dock-status-banner.docked {
+            background: rgba(16, 185, 129, 0.16);
+            border-color: var(--emerald);
+            color: var(--emerald);
+        }
+
+        .dock-status-banner.crashed {
+            background: rgba(239, 68, 68, 0.18);
+            border-color: var(--rose);
+            color: var(--rose);
+        }
+
+        .dock-status-banner.hover {
+            background: rgba(245, 158, 11, 0.16);
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        /* CONTROLS & INPUTS */
+        .select-model, .seed-input {
+            background: var(--bg-0);
+            border: 1px solid var(--border-hi);
+            color: var(--text-0);
+            padding: 5px 8px;
+            border-radius: 3px;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .select-model:focus, .seed-input:focus {
+            border-color: var(--cyan);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .btn-ctrl {
+            background: var(--bg-0);
+            border: 1px solid var(--border-hi);
+            color: var(--text-0);
+            padding: 5px 6px;
+            border-radius: 3px;
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+        }
+
+        .btn-ctrl:hover {
+            background: var(--bg-2);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-ctrl.btn-warn {
+            border-color: rgba(245, 158, 11, 0.45);
+            color: var(--amber);
+        }
+        .btn-ctrl.btn-warn:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--amber);
+        }
+
+        /* 6-DOF / LVLH STATE VECTOR TABLE */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            font-family: var(--mono);
+            font-size: 10.5px;
+        }
+
+        .state-cell {
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 4px 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .state-cell . axis { color: var(--text-2); font-size: 9.5px; }
+        .state-cell .val { font-weight: 600; color: var(--text-0); }
+
+        /* PHASE PLANE CANVAS */
+        #phase-canvas {
+            width: 100%;
+            height: 115px;
+            background: var(--bg-0);
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            display: block;
+        }
+
+        /* 6-VALVE RCS MATRIX */
+        .rcs-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            font-family: var(--mono);
+            font-size: 9.5px;
+        }
+
+        .rcs-cell {
+            background: var(--bg-0);
+            border: 1px solid var(--border);
+            padding: 4px 2px;
+            border-radius: 3px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .rcs-cell .axis-lbl { color: var(--text-2); font-size: 8.5px; }
+
+        .rcs-cell.firing {
+            background: rgba(56, 189, 248, 0.22);
+            border-color: var(--cyan);
+            color: #fff;
+        }
+
+        /* SESSION FLIGHT LOG TABLE */
+        .log-table-wrap {
+            max-height: 115px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--bg-0);
+        }
+
+        table.flight-log {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--mono);
+            font-size: 10px;
+            text-align: left;
+        }
+
+        table.flight-log th {
+            background: var(--bg-2);
+            color: var(--text-1);
+            padding: 3px 6px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        table.flight-log td {
+            padding: 3px 6px;
+            border-top: 1px solid var(--border);
+            color: var(--text-0);
+        }
+
+        table.flight-log tr:hover td {
+            background: rgba(56, 189, 248, 0.08);
+            cursor: pointer;
+        }
+
+        .tag-ok { color: var(--emerald); font-weight: 700; }
+        .tag-err { color: var(--rose); font-weight: 700; }
+        .tag-warn { color: var(--amber); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-cluster">
+            <div class="sys-title">
+                <span>ORBITAL-RL</span>
+                <span class="tag-sub">// MUJOCO GNC CONSOLE</span>
+            </div>
+            <div class="status-pill">
+                <span class="led" id="conn-led"></span>
+                <span id="fps-badge">STREAM ONLINE // 1280x720 MSAA</span>
+            </div>
+        </div>
+
+        <nav class="nav-strip">
+            <a class="nav-link active" href="/?v=3">01 // MUJOCO GNC CONSOLE</a>
+            <a class="nav-link" href="/3d?v=3">02 // 3D TELEMETRY DIGITAL TWIN</a>
+        </nav>
+
+        <div class="header-telemetry">
+            <div class="kv-chip"><span class="k">FLIGHT</span><span class="v" id="disp-flight-id">#1</span></div>
+            <div class="kv-chip"><span class="k">SEED</span><span class="v" id="disp-seed">9043</span></div>
+            <div class="kv-chip"><span class="k">MET</span><span class="v" id="disp-time">00.0s</span></div>
+            <div class="kv-chip"><span class="k">MODE</span><span class="v" id="disp-model-tag" style="color: var(--cyan);">Champion-PPO</span></div>
+            <div class="kv-chip"><span class="k">CBF</span><span class="v" id="disp-cbf-tag" style="color: var(--emerald);">NOMINAL</span></div>
+        </div>
+    </header>
+
+    <main>
+        <!-- LEFT: OPTICAL SENSOR VIEWPORT -->
+        <div class="video-container">
+            <div class="camera-viewport" id="viewport-box">
+                <canvas id="fallback-canvas" style="position: absolute; top:0; left:0; width:100%; height:100%; z-index: 1;"></canvas>
+                <img id="main-stream" class="stream-feed" src="" alt="MuJoCo Optical Feed" onerror="handleStreamError(this)" onload="handleStreamLoaded(this)">
+
+                <canvas id="outcome-fx-canvas"></canvas>
+                <div id="outcome-banner">
+                    <div id="outcome-title"></div>
+                    <div id="outcome-sub"></div>
+                </div>
+
+                <div class="hud-overlay">
+                    <div class="instrument-tape left">
+                        <div class="tape-lbl">CLOSING |V|</div>
+                        <div class="tape-val" style="color: var(--emerald);" id="hud-speed">0.00</div>
+                        <div class="tape-lim">cm/s [MAX 6.0]</div>
+                    </div>
+
+                    <div class="instrument-tape right">
+                        <div class="tape-lbl">RANGE |R|</div>
+                        <div class="tape-val" style="color: var(--cyan);" id="hud-range">0.000</div>
+                        <div class="tape-lim" id="hud-port-lim">m [GATE 0.140]</div>
+                    </div>
+
+                    <div class="crosshair-center" id="hud-crosshair" style="display: none;">
+                        <div class="crosshair-reticle">
+                            <div class="crosshair-inner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pip-container" id="pip-box" onclick="swapCameras()" title="Click to swap primary and secondary camera feeds">
+                    <span class="pip-label" id="pip-label">CAM-02 // PROBE</span>
+                    <img id="pip-stream" src="" alt="Secondary Feed">
+                </div>
+            </div>
+
+            <div class="video-controls">
+                <div class="cam-btn-group">
+                    <button class="btn-cam active" onclick="switchCamera('chase', this)">CAM-01 // CHASE</button>
+                    <button class="btn-cam" onclick="switchCamera('probe', this)">CAM-02 // PROBE HUD</button>
+                    <button class="btn-cam" onclick="switchCamera('cctv', this)">CAM-03 // PORT CCTV</button>
+                    <button class="btn-cam" onclick="switchCamera('tactical', this)">CAM-04 // TACTICAL</button>
+                </div>
+
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button class="btn-cam" onclick="previewOutcomeFx('docked')" title="Test Docking Capture Visual">TEST CAPTURE FX</button>
+                    <button class="btn-cam" onclick="previewOutcomeFx('crashed')" title="Test Impact Explosion Visual" style="color: var(--rose);">TEST IMPACT FX</button>
+                    <button class="btn-cam" onclick="toggleRlModal()" style="border-color: var(--cyan); color: var(--cyan);">BENCHMARK DATA</button>
+                    <button class="btn-cam" onclick="toggleFullscreen()">FULLSCREEN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: ENGINEERING TELEMETRY & COMMAND DECK -->
+        <div class="telemetry-sidebar">
+
+            <div class="dock-status-banner" id="dock-status-card">
+                <span id="dock-status-text">PHASE // V-BAR APPROACH</span>
+                <span id="dock-step-text" style="font-size: 10px; opacity: 0.85;">STEP 0/300</span>
+            </div>
+
+            <!-- 1. GNC CONTROLLER & COMMAND DECK -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>GNC CONTROLLER & EXECUTION</span>
+                    <span id="sim-run-state" style="color: var(--emerald);">RUNNING</span>
+                </div>
+
+                <select class="select-model" id="model-select" onchange="changeModel(this.value)">
+                    <option value="Champion-PPO" selected>Champion-PPO // Pure 700K RL + CBF + PWPF (82%)</option>
+                    <option value="Champion-PPO-Raw">Champion-PPO-Raw // Pure 700K RL + PWPF (78%)</option>
+                    <option value="Champion-Hybrid">Champion-Hybrid // 700K RL + Terminal Servo (100%)</option>
+                    <option value="Safe-GNC">Safe-GNC // Analytical Guidance + CBF + PWPF</option>
+                    <option value="BC-PPO">BC-PPO // Behavioral Cloning Baseline</option>
+                    <option value="DR-PPO">DR-PPO // Unshielded Domain Rand. (Impact Demo)</option>
+                    <option value="PPO-CBF">PPO-CBF // Legacy Shielded PPO (Hover Demo)</option>
+                </select>
+
+                <div class="controls-grid">
+                    <button class="btn-ctrl" onclick="sendControl('reset')">NEW FLIGHT</button>
+                    <button class="btn-ctrl" id="btn-pause" onclick="sendControl('pause')">PAUSE</button>
+                    <button class="btn-ctrl" onclick="sendControl('step_once')">STEP +1</button>
+                    <button class="btn-ctrl btn-warn" onclick="sendControl('shock')">+0.16m/s IMPULSE</button>
+                </div>
+
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <span style="font-family: var(--mono); font-size: 9.5px; color: var(--text-2);">SEED:</span>
+                    <input type="number" class="seed-input" id="custom-seed-input" value="9043" style="width: 82px;">
+                    <button class="btn-ctrl" onclick="runCustomSeed()" style="flex: 1;">LOAD SEED</button>
+                    <button class="btn-ctrl" onclick="runFailingSeedDemo()" title="Load a challenging wide-offset seed">STRESS SEED</button>
+                </div>
+            </div>
+
+            <!-- 2. LVLH STATE VECTOR & SAFETY MARGINS -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>LVLH STATE VECTOR & SAFETY ENVELOPE</span>
+                    <span id="disp-cone" style="color: var(--cyan);">LOS: 0.0°</span>
+                </div>
+
+                <div class="state-grid">
+                    <div class="state-cell"><span class="axis">Rx</span><span class="val" id="st-rx">0.000m</span></div>
+                    <div class="state-cell"><span class="axis">Ry</span><span class="val" id="st-ry">0.000m</span></div>
+                    <div class="state-cell"><span class="axis">Rz</span><span class="val" id="st-rz">0.000m</span></div>
+                    <div class="state-cell"><span class="axis">Vx</span><span class="val" id="st-vx">0.0cm/s</span></div>
+                    <div class="state-cell"><span class="axis">Vy</span><span class="val" id="st-vy">0.0cm/s</span></div>
+                    <div class="state-cell"><span class="axis">Vz</span><span class="val" id="st-vz">0.0cm/s</span></div>
+                </div>
+
+                <div class="state-grid" style="margin-top: 2px;">
+                    <div class="state-cell"><span class="axis">|R_xz|</span><span class="val" id="disp-laterr" style="color: var(--amber);">0.0cm</span></div>
+                    <div class="state-cell"><span class="axis">V_safe</span><span class="val" id="disp-vsafe" style="color: var(--cyan);">0.0cm/s</span></div>
+                    <div class="state-cell"><span class="axis">h(x)</span><span class="val" id="disp-cbf-h" style="color: var(--emerald);">+0.000</span></div>
+                </div>
+            </div>
+
+            <!-- 3. PHASE PLANE (|V| vs |R|) -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>PHASE PLANE TRAJECTORY [|V| vs |R|]</span>
+                    <span style="color: var(--emerald);">CBF ENVELOPE</span>
+                </div>
+                <canvas id="phase-canvas"></canvas>
+            </div>
+
+            <!-- 4. PWPF RCS THRUSTER MATRIX -->
+            <div class="telemetry-card">
+                <div class="card-header">
+                    <span>PWPF RCS THRUSTER VALVES [15.0 N]</span>
+                    <span id="disp-dv-fuel" style="color: var(--cyan);">ΔV: 0.00 m/s | FUEL: 120.0 kg</span>
+                </div>
+
+                <div class="rcs-grid">
+                    <div class="rcs-cell" id="rcs-xp"><span class="axis-lbl">+X RAD</span><b id="val-fx-p">0.0</b></div>
+                    <div class="rcs-cell" id="rcs-xn"><span class="axis-lbl">-X RAD</span><b id="val-fx-n">0.0</b></div>
+                    <div class="rcs-cell" id="rcs-yp"><span class="axis-lbl">+Y VBAR</span><b id="val-fy-p">0.0</b></div>
+                    <div class="rcs-cell" id="rcs-yn"><span class="axis-lbl">-Y BRK</span><b id="val-fy-n">0.0</b></div>
+                    <div class="rcs-cell" id="rcs-zp"><span class="axis-lbl">+Z CRS</span><b id="val-fz-p">0.0</b></div>
+                    <div class="rcs-cell" id="rcs-zn"><span class="axis-lbl">-Z CRS</span><b id="val-fz-n">0.0</b></div>
+                </div>
+            </div>
+
+            <!-- 5. LIVE SESSION SCOREBOARD & FLIGHT LOG -->
+            <div class="telemetry-card" style="flex: 1; min-height: 135px;">
+                <div class="card-header">
+                    <span>SESSION FLIGHT LOG <span id="sess-summary" style="color: var(--emerald); margin-left: 6px;">[DOCK: 0 | CRASH: 0 | HOVER: 0]</span></span>
+                    <button class="btn-ctrl" onclick="sendControl('clear_history')" style="padding: 1px 6px; font-size: 9px;">CLEAR</button>
+                </div>
+
+                <div class="log-table-wrap">
+                    <table class="flight-log">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>SEED</th>
+                                <th>MODE</th>
+                                <th>RESULT</th>
+                                <th>|R|</th>
+                                <th>|V|</th>
+                                <th>ΔV</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flight-log-body">
+                            <tr><td colspan="7" style="color: var(--text-2); text-align: center; padding: 10px;">Awaiting flight completion... (Click row to replay seed)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- BENCHMARK & ARCHITECTURE MODAL -->
+    <div id="rl-modal" style="display:none; position:fixed; inset:0; background:rgba(5,8,15,0.95); z-index:999; padding:20px; flex-direction:column; gap: 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+            <div>
+                <div style="font-size:14px; color:var(--text-0); font-family:var(--mono); font-weight:700;">ORBITAL-RL // 50-EPISODE MONTE CARLO BENCHMARK & TRAINING METRICS</div>
+                <div style="font-size:11px; color:var(--text-1); font-family:var(--mono);">700K Pure MuJoCo PPO (OrbitalObsFeaturesExtractor + PWPF/CBF-In-Loop) vs Legacy Baselines</div>
+            </div>
+            <button class="btn-ctrl" onclick="toggleRlModal()" style="padding:6px 16px;">CLOSE [ESC]</button>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-height: 0; overflow: auto;">
+            <div style="background: var(--bg-1); border: 1px solid var(--border); border-radius: 4px; padding: 12px; overflow: auto;">
+                <div style="font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan); margin-bottom: 8px;">VERIFIED MONTE CARLO SUMMARY (mujoco_champion_benchmark_stats.json)</div>
+                <div id="benchmark-json-table" style="font-family: var(--mono); font-size: 11px; color: var(--text-0);">Loading benchmark data...</div>
+            </div>
+            <div style="background: #000; border: 1px solid var(--border); border-radius: 4px; padding: 8px; overflow: auto; text-align: center;">
+                <img src="rl_deep_dive_hyperparameters_and_curves.png" style="max-width:100%; height:auto; border-radius:3px;" alt="RL Training Curves">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = (window.location.protocol === 'file:' || (window.location.port !== '8055' && window.location.hostname !== ''))
+                         ? 'http://localhost:8055'
+                         : '';
+
+        let currentMainCam = 'chase';
+        let currentPipCam = 'probe';
+        const canvas = document.getElementById('phase-canvas');
+        const ctx = canvas.getContext('2d');
+        const fallbackCanvas = document.getElementById('fallback-canvas');
+        const fbCtx = fallbackCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            if (canvas && canvas.parentElement) {
+                canvas.width = canvas.parentElement.clientWidth - 20;
+                canvas.height = 115;
+            }
+            if (fallbackCanvas && fallbackCanvas.parentElement) {
+                fallbackCanvas.width = fallbackCanvas.parentElement.clientWidth;
+                fallbackCanvas.height = fallbackCanvas.parentElement.clientHeight;
+            }
+            resizeFxCanvas();
+        }
+        window.addEventListener('resize', resizeCanvases);
+        setTimeout(resizeCanvases, 50);
+
+        function initStreams() {
+            document.getElementById('main-stream').src = `${API_BASE}/stream/${currentMainCam}?t=${Date.now()}`;
+            document.getElementById('pip-stream').src = `${API_BASE}/stream/${currentPipCam}?t=${Date.now()}`;
+        }
+        window.addEventListener('DOMContentLoaded', initStreams);
+        initStreams();
+
+        function handleStreamLoaded(img) {
+            img.style.display = 'block';
+            fallbackCanvas.style.display = 'none';
+            document.getElementById('fps-badge').textContent = 'STREAM ONLINE // 1280x720 MSAA';
+        }
+
+        function handleStreamError(img) {
+            img.style.display = 'none';
+            fallbackCanvas.style.display = 'block';
+            document.getElementById('fps-badge').textContent = 'LOCAL FALLBACK SIMULATOR';
+            setTimeout(() => {
+                img.src = `${API_BASE}/stream/${currentMainCam}?t=${Date.now()}`;
+            }, 1800);
+        }
+
+        function switchCamera(camKey, btn) {
+            currentMainCam = camKey;
+            document.getElementById('main-stream').src = `${API_BASE}/stream/${camKey}?t=${Date.now()}`;
+            document.querySelectorAll('.cam-btn-group .btn-cam').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            document.getElementById('hud-crosshair').style.display = (camKey === 'probe') ? 'block' : 'none';
+
+            if (currentPipCam === camKey) {
+                currentPipCam = (camKey === 'probe') ? 'chase' : 'probe';
+                document.getElementById('pip-stream').src = `${API_BASE}/stream/${currentPipCam}?t=${Date.now()}`;
+                document.getElementById('pip-label').textContent = 'PIP // ' + currentPipCam.toUpperCase();
+            }
+        }
+
+        function swapCameras() {
+            const temp = currentMainCam;
+            switchCamera(currentPipCam, null);
+            currentPipCam = temp;
+            document.getElementById('pip-stream').src = `${API_BASE}/stream/${currentPipCam}?t=${Date.now()}`;
+            document.getElementById('pip-label').textContent = 'PIP // ' + currentPipCam.toUpperCase();
+        }
+
+        function toggleFullscreen() {
+            const el = document.getElementById('viewport-box');
+            if (!document.fullscreenElement) el.requestFullscreen().catch(() => {});
+            else document.exitFullscreen();
+        }
+
+        async function toggleRlModal() {
+            const m = document.getElementById('rl-modal');
+            const isOpening = (m.style.display !== 'flex');
+            m.style.display = isOpening ? 'flex' : 'none';
+            if (isOpening) {
+                try {
+                    const res = await fetch(`${API_BASE}/mujoco_champion_benchmark_stats.json?t=${Date.now()}`);
+                    if (res.ok) {
+                        const st = await res.json();
+                        const modes = st.pure_modes_summary || {};
+                        let html = `<div style="margin-bottom:10px; color:var(--text-1);">Model: <b style="color:var(--text-0);">${st.model_name}</b> (${(st.total_timesteps||700000).toLocaleString()} steps, N=${st.evaluation_episodes} flights)</div>`;
+                        html += `<table class="flight-log" style="margin-bottom:14px;"><thead><tr><th>EVAL MODE</th><th>SUCCESS</th><th>CRASH</th><th>HOVER</th><th>MEAN |R|</th><th>MEAN |V|</th><th>MEAN ΔV</th></tr></thead><tbody>`;
+                        for (const [k, v] of Object.entries(modes)) {
+                            html += `<tr><td><b>${k}</b></td><td class="tag-ok">${v.success_rate.toFixed(1)}% (${v.success_count}/${v.evaluation_episodes})</td><td class="tag-err">${v.crash_rate.toFixed(1)}%</td><td class="tag-warn">${v.hover_rate.toFixed(1)}%</td><td>${v.mean_final_distance.toFixed(3)}m</td><td>${(v.mean_final_speed*100).toFixed(2)}cm/s</td><td>${v.mean_delta_v.toFixed(2)}m/s</td></tr>`;
+                        }
+                        html += `</tbody></table>`;
+                        document.getElementById('benchmark-json-table').innerHTML = html;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        async function sendControl(action, extraQuery = '') {
+            try {
+                const res = await fetch(`${API_BASE}/api/control?action=${action}${extraQuery}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.seed) document.getElementById('custom-seed-input').value = data.seed;
+                }
+            } catch (e) {}
+        }
+
+        function runCustomSeed() {
+            const val = document.getElementById('custom-seed-input').value.trim();
+            if (val) sendControl('reset', `&seed=${encodeURIComponent(val)}`);
+        }
+
+        function runFailingSeedDemo() {
+            document.getElementById('custom-seed-input').value = 9043;
+            sendControl('reset', '&seed=9043');
+        }
+
+        async function changeModel(modelName) {
+            await sendControl('set_model', `&model=${encodeURIComponent(modelName)}`);
+            document.getElementById('disp-model-tag').textContent = modelName;
+        }
+
+        // =========================================================
+        // OUTCOME FX ENGINE (CAPTURE LOCK & IMPACT EXPLOSION)
+        // =========================================================
+        const fxCanvas = document.getElementById('outcome-fx-canvas');
+        const fxCtx = fxCanvas.getContext('2d');
+        let fxParticles = [];
+        let fxRings = [];
+        let fxFlashAlpha = 0;
+        let fxFlashColor = '255, 120, 40';
+        let fxAnimRunning = false;
+        let lastOutcomeFlightId = null;
+
+        function resizeFxCanvas() {
+            const vp = document.getElementById('viewport-box');
+            if (fxCanvas && vp) {
+                fxCanvas.width = vp.clientWidth;
+                fxCanvas.height = vp.clientHeight;
+            }
+        }
+
+        function clearOutcomeFx() {
+            lastOutcomeFlightId = null;
+            const vp = document.getElementById('viewport-box');
+            const banner = document.getElementById('outcome-banner');
+            if (vp) vp.classList.remove('crash-shake', 'dock-glow');
+            if (banner) banner.className = '';
+        }
+
+        function previewOutcomeFx(type) {
+            lastOutcomeFlightId = null;
+            triggerOutcomeFx(type, { flight_id: 'TEST-' + Date.now(), dist: type === 'docked' ? 0.134 : 0.112, speed: type === 'docked' ? 0.039 : 0.148 });
+            setTimeout(clearOutcomeFx, 2200);
+        }
+
+        function triggerOutcomeFx(type, d) {
+            const fid = d.flight_id || 1;
+            if (lastOutcomeFlightId === fid) return;
+            lastOutcomeFlightId = fid;
+
+            resizeFxCanvas();
+            const vp = document.getElementById('viewport-box');
+            const banner = document.getElementById('outcome-banner');
+            const titleEl = document.getElementById('outcome-title');
+            const subEl = document.getElementById('outcome-sub');
+            const cx = fxCanvas.width / 2;
+            const cy = fxCanvas.height / 2;
+
+            fxParticles = [];
+            fxRings = [];
+            vp.classList.remove('crash-shake', 'dock-glow');
+
+            if (type === 'crashed') {
+                void vp.offsetWidth;
+                vp.classList.add('crash-shake');
+                banner.className = 'show-crashed';
+                titleEl.textContent = 'IMPACT DETECTED // STRUCTURAL LOSS';
+                subEl.textContent = `|R| = ${(d.dist || 0).toFixed(3)} m  |  |V| = ${((d.speed || 0) * 100).toFixed(2)} cm/s [LIMIT 6.00 cm/s]`;
+                fxFlashAlpha = 0.85;
+                fxFlashColor = '239, 68, 68';
+
+                fxRings.push({ x: cx, y: cy, r: 12, maxR: Math.max(cx, cy) * 1.05, color: '251, 146, 60', lineW: 9, alpha: 1.0 });
+                fxRings.push({ x: cx, y: cy, r: 6, maxR: Math.max(cx, cy) * 0.72, color: '239, 68, 68', lineW: 5, alpha: 0.95 });
+
+                const colors = ['#ffffff', '#fef08a', '#fb923c', '#ef4444', '#dc2626'];
+                for (let i = 0; i < 95; i++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const spd = 2.2 + Math.random() * 11.5;
+                    fxParticles.push({
+                        x: cx + (Math.random() - 0.5) * 16,
+                        y: cy + (Math.random() - 0.5) * 16,
+                        vx: Math.cos(ang) * spd,
+                        vy: Math.sin(ang) * spd,
+                        size: 2.5 + Math.random() * 9,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        alpha: 1.0,
+                        decay: 0.015 + Math.random() * 0.018
+                    });
+                }
+            } else if (type === 'docked') {
+                vp.classList.add('dock-glow');
+                banner.className = 'show-docked';
+                titleEl.textContent = 'HARD CAPTURE CONFIRMED // DOCKED';
+                subEl.textContent = `|R| = ${(d.dist || 0).toFixed(3)} m [<= 0.140m]  |  |V| = ${((d.speed || 0) * 100).toFixed(2)} cm/s [<= 6.00cm/s]`;
+                fxFlashAlpha = 0.4;
+                fxFlashColor = '16, 185, 129';
+
+                fxRings.push({ x: cx, y: cy, r: 14, maxR: Math.max(cx, cy) * 0.8, color: '16, 185, 129', lineW: 4, alpha: 0.95 });
+                fxRings.push({ x: cx, y: cy, r: 8, maxR: Math.max(cx, cy) * 0.5, color: '56, 189, 248', lineW: 2.5, alpha: 0.85 });
+
+                const colors = ['#10b981', '#34d399', '#38bdf8', '#a7f3d0', '#ffffff'];
+                for (let i = 0; i < 55; i++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const spd = 1.5 + Math.random() * 6.0;
+                    fxParticles.push({
+                        x: cx,
+                        y: cy,
+                        vx: Math.cos(ang) * spd,
+                        vy: Math.sin(ang) * spd,
+                        size: 2 + Math.random() * 4.5,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        alpha: 1.0,
+                        decay: 0.015 + Math.random() * 0.015
+                    });
+                }
+            } else if (type === 'hover') {
+                banner.className = 'show-hover';
+                titleEl.textContent = 'TIMEOUT // HOVER STALL';
+                subEl.textContent = `Step Budget Exhausted (300/300)  |  Final |R| = ${(d.dist || 0).toFixed(3)} m`;
+            }
+
+            if (!fxAnimRunning) {
+                fxAnimRunning = true;
+                requestAnimationFrame(renderOutcomeFx);
+            }
+        }
+
+        function renderOutcomeFx() {
+            fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+
+            if (fxFlashAlpha > 0.01) {
+                fxCtx.fillStyle = `rgba(${fxFlashColor}, ${fxFlashAlpha})`;
+                fxCtx.fillRect(0, 0, fxCanvas.width, fxCanvas.height);
+                fxFlashAlpha *= 0.86;
+            }
+
+            for (let i = fxRings.length - 1; i >= 0; i--) {
+                const ring = fxRings[i];
+                ring.r += (ring.maxR - ring.r) * 0.14;
+                ring.alpha *= 0.92;
+                fxCtx.beginPath();
+                fxCtx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+                fxCtx.strokeStyle = `rgba(${ring.color}, ${ring.alpha})`;
+                fxCtx.lineWidth = ring.lineW;
+                fxCtx.stroke();
+                if (ring.alpha < 0.03) fxRings.splice(i, 1);
+            }
+
+            for (let i = fxParticles.length - 1; i >= 0; i--) {
+                const p = fxParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.97;
+                p.vy *= 0.97;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) {
+                    fxParticles.splice(i, 1);
+                    continue;
+                }
+                fxCtx.globalAlpha = p.alpha;
+                fxCtx.fillStyle = p.color;
+                fxCtx.beginPath();
+                fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                fxCtx.fill();
+            }
+            fxCtx.globalAlpha = 1.0;
+
+            if (fxParticles.length > 0 || fxRings.length > 0 || fxFlashAlpha > 0.01) {
+                requestAnimationFrame(renderOutcomeFx);
+            } else {
+                fxAnimRunning = false;
+            }
+        }
+
+        // =========================================================
+        // TELEMETRY POLLING & UI UPDATE LOOP (25 Hz)
+        // =========================================================
+        let lastHistoryHash = '';
+
+        async function fetchTelemetry() {
+            let d = null;
+            try {
+                const res = await fetch(`${API_BASE}/telemetry?t=` + Date.now(), { cache: 'no-store' });
+                if (res.ok) d = await res.json();
+            } catch (e) {}
+
+            if (!d || d.dist === undefined) return;
+
+            document.getElementById('disp-flight-id').textContent = '#' + (d.flight_id || 1);
+            document.getElementById('disp-seed').textContent = d.seed || '---';
+            document.getElementById('disp-time').textContent = (d.t || 0).toFixed(1) + 's';
+            document.getElementById('disp-model-tag').textContent = d.model_name || 'Champion-PPO';
+
+            const pauseBtn = document.getElementById('btn-pause');
+            const runState = document.getElementById('sim-run-state');
+            if (d.is_paused) {
+                pauseBtn.textContent = 'RESUME';
+                runState.textContent = 'PAUSED';
+                runState.style.color = 'var(--amber)';
+            } else {
+                pauseBtn.textContent = 'PAUSE';
+                runState.textContent = 'RUNNING';
+                runState.style.color = 'var(--emerald)';
+            }
+
+            // HUD Tapes
+            document.getElementById('hud-speed').textContent = ((d.speed || 0) * 100).toFixed(2);
+            document.getElementById('hud-range').textContent = (d.dist || 0).toFixed(3);
+            if (d.docking_radius) {
+                document.getElementById('hud-port-lim').textContent = `m [GATE ${d.docking_radius.toFixed(3)}]`;
+            }
+
+            // LVLH State Vector
+            const pos = d.pos || [0, 0, 0];
+            const vel = d.vel || [0, 0, 0];
+            document.getElementById('st-rx').textContent = (pos[0] >= 0 ? '+' : '') + pos[0].toFixed(3) + 'm';
+            document.getElementById('st-ry').textContent = pos[1].toFixed(3) + 'm';
+            document.getElementById('st-rz').textContent = (pos[2] >= 0 ? '+' : '') + pos[2].toFixed(3) + 'm';
+            document.getElementById('st-vx').textContent = (vel[0] * 100 >= 0 ? '+' : '') + (vel[0] * 100).toFixed(1) + 'cm/s';
+            document.getElementById('st-vy').textContent = (vel[1] * 100).toFixed(1) + 'cm/s';
+            document.getElementById('st-vz').textContent = (vel[2] * 100 >= 0 ? '+' : '') + (vel[2] * 100).toFixed(1) + 'cm/s';
+
+            document.getElementById('disp-laterr').textContent = ((d.lat_err || 0) * 100).toFixed(1) + 'cm';
+            document.getElementById('disp-vsafe').textContent = ((d.v_safe || 0) * 100).toFixed(1) + 'cm/s';
+            document.getElementById('disp-cone').textContent = `LOS: ${(d.ang_err || 0).toFixed(1)}°`;
+
+            const cbfH = d.cbf_h !== undefined ? d.cbf_h : 0;
+            const cbfHEl = document.getElementById('disp-cbf-h');
+            cbfHEl.textContent = (cbfH >= 0 ? '+' : '') + cbfH.toFixed(4);
+            cbfHEl.style.color = cbfH >= 0 ? 'var(--emerald)' : 'var(--rose)';
+
+            // Status Banner & Outcome FX
+            const statusCard = document.getElementById('dock-status-card');
+            const statusText = document.getElementById('dock-status-text');
+            document.getElementById('dock-step-text').textContent = `STEP ${d.step || 0}/${d.max_steps || 300}`;
+
+            if (d.docked) {
+                statusCard.className = 'dock-status-banner docked';
+                statusText.textContent = 'HARD CAPTURE CONFIRMED // DOCKED';
+                triggerOutcomeFx('docked', d);
+            } else if (d.crashed) {
+                statusCard.className = 'dock-status-banner crashed';
+                statusText.textContent = 'IMPACT DETECTED // VELOCITY EXCEEDED';
+                triggerOutcomeFx('crashed', d);
+            } else if (d.hover) {
+                statusCard.className = 'dock-status-banner hover';
+                statusText.textContent = 'TIMEOUT // HOVER STALL';
+                triggerOutcomeFx('hover', d);
+            } else {
+                if (lastOutcomeFlightId !== null && lastOutcomeFlightId !== d.flight_id && !String(lastOutcomeFlightId).startsWith('TEST')) {
+                    clearOutcomeFx();
+                }
+                statusCard.className = 'dock-status-banner';
+                if (d.dist < 0.5) statusText.textContent = 'PHASE // TERMINAL CAPTURE CORRIDOR';
+                else if (d.dist < 3.0) statusText.textContent = 'PHASE // ASYMPTOTIC BRAKING GATE';
+                else statusText.textContent = 'PHASE // V-BAR APPROACH';
+            }
+
+            // CBF Header Tag
+            const cbfTag = document.getElementById('disp-cbf-tag');
+            if (d.cbf_active) {
+                cbfTag.textContent = `CLAMPING (${d.cbf_count || 1})`;
+                cbfTag.style.color = 'var(--amber)';
+            } else {
+                cbfTag.textContent = 'NOMINAL';
+                cbfTag.style.color = 'var(--emerald)';
+            }
+
+            // RCS Valves
+            const th = d.thrust_mod || [0, 0, 0];
+            updateRcsCell('rcs-xp', 'val-fx-p', th[0] > 0.2, th[0]);
+            updateRcsCell('rcs-xn', 'val-fx-n', th[0] < -0.2, Math.abs(th[0]));
+            updateRcsCell('rcs-yp', 'val-fy-p', th[1] > 0.2, th[1]);
+            updateRcsCell('rcs-yn', 'val-fy-n', th[1] < -0.2, Math.abs(th[1]));
+            updateRcsCell('rcs-zp', 'val-fz-p', th[2] > 0.2, th[2]);
+            updateRcsCell('rcs-zn', 'val-fz-n', th[2] < -0.2, Math.abs(th[2]));
+
+            document.getElementById('disp-dv-fuel').textContent = `ΔV: ${(d.cum_dv || 0).toFixed(2)} m/s | FUEL: ${(d.fuel || 120).toFixed(1)} kg`;
+
+            // Session Scoreboard & Flight Log
+            if (d.session) {
+                const s = d.session;
+                const tot = (s.docked || 0) + (s.crashed || 0) + (s.hover || 0);
+                const rateStr = tot > 0 ? ` (${Math.round((s.docked / tot) * 100)}%)` : '';
+                document.getElementById('sess-summary').textContent = `[DOCK: ${s.docked || 0}${rateStr} | CRASH: ${s.crashed || 0} | HOVER: ${s.hover || 0}]`;
+
+                const hist = s.history || [];
+                const hash = JSON.stringify(hist.map(h => h.flight_id));
+                if (hash !== lastHistoryHash) {
+                    lastHistoryHash = hash;
+                    const tbody = document.getElementById('flight-log-body');
+                    if (hist.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="color: var(--text-2); text-align: center; padding: 10px;">Awaiting flight completion... (Click row to replay seed)</td></tr>`;
+                    } else {
+                        tbody.innerHTML = hist.map(item => {
+                            const cls = item.outcome === 'DOCKED' ? 'tag-ok' : (item.outcome === 'CRASHED' ? 'tag-err' : 'tag-warn');
+                            return `<tr onclick="replaySeed(${item.seed})" title="Click to re-run Seed ${item.seed}">
+                                <td>#${item.flight_id}</td>
+                                <td>${item.seed}</td>
+                                <td>${item.model}</td>
+                                <td class="${cls}">${item.outcome}</td>
+                                <td>${item.dist.toFixed(3)}m</td>
+                                <td>${item.speed.toFixed(1)}cm/s</td>
+                                <td>${item.dv.toFixed(2)}</td>
+                            </tr>`;
+                        }).join('');
+                    }
+                }
+            }
+
+            drawPhasePlane(d.phase_history || [], d.dist, d.speed);
+        }
+
+        function replaySeed(seed) {
+            document.getElementById('custom-seed-input').value = seed;
+            sendControl('reset', `&seed=${seed}`);
+        }
+
+        function updateRcsCell(cellId, valId, isFiring, force) {
+            const el = document.getElementById(cellId);
+            const valEl = document.getElementById(valId);
+            if (isFiring) {
+                el.className = 'rcs-cell firing';
+                valEl.textContent = force.toFixed(1);
+            } else {
+                el.className = 'rcs-cell';
+                valEl.textContent = '0.0';
+            }
+        }
+
+        function drawPhasePlane(history, curD, curV) {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Deep space cosmic gradient backdrop
+            const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+            bgGrad.addColorStop(0, '#040814');
+            bgGrad.addColorStop(0.55, '#081226');
+            bgGrad.addColorStop(1, '#040711');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            const maxD = 24.0;
+            const maxV = 0.45;
+            const tx = d => (d / maxD) * (w - 30) + 18;
+            const ty = v => h - 16 - (v / maxV) * (h - 24);
+
+            // Grid lines & scale ticks
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
+            ctx.fillStyle = '#64748b';
+            ctx.font = '8.5px JetBrains Mono, monospace';
+            ctx.lineWidth = 1;
+            for (let d = 0; d <= maxD; d += 6) {
+                const x = tx(d);
+                ctx.beginPath(); ctx.moveTo(x, 4); ctx.lineTo(x, h - 16); ctx.stroke();
+                ctx.fillText(d + 'm', x - 6, h - 4);
+            }
+            for (let v = 0.1; v <= 0.4; v += 0.15) {
+                const y = ty(v);
+                ctx.beginPath(); ctx.moveTo(18, y); ctx.lineTo(w - 10, y); ctx.stroke();
+            }
+
+            // Red impact zone (d < 1.8m, v > 0.06m/s)
+            const impGrad = ctx.createLinearGradient(0, ty(maxV), 0, ty(0.06));
+            impGrad.addColorStop(0, 'rgba(239, 68, 68, 0.28)');
+            impGrad.addColorStop(1, 'rgba(239, 68, 68, 0.06)');
+            ctx.fillStyle = impGrad;
+            ctx.fillRect(tx(0), ty(maxV), tx(1.8) - tx(0), ty(0.06) - ty(maxV));
+
+            // Shaded Safe CBF Envelope
+            ctx.beginPath();
+            ctx.moveTo(tx(0.01), ty(0));
+            for (let d = 0.01; d <= maxD; d += 0.25) {
+                const v_safe = 0.051 + (0.40 - 0.051) * Math.tanh(d / 5.0);
+                ctx.lineTo(tx(d), ty(v_safe));
+            }
+            ctx.lineTo(tx(maxD), ty(0));
+            ctx.closePath();
+            const safeGrad = ctx.createLinearGradient(0, 10, 0, h - 16);
+            safeGrad.addColorStop(0, 'rgba(56, 189, 248, 0.16)');
+            safeGrad.addColorStop(1, 'rgba(16, 185, 129, 0.03)');
+            ctx.fillStyle = safeGrad;
+            ctx.fill();
+
+            // Safe CBF boundary curve
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+            ctx.lineWidth = 1.5;
+            for (let d = 0.01; d <= maxD; d += 0.25) {
+                const v_safe = 0.051 + (0.40 - 0.051) * Math.tanh(d / 5.0);
+                const x = tx(d);
+                const y = ty(v_safe);
+                if (d === 0.01) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Target Capture Gate (d <= 0.4m, v <= 0.06m/s)
+            ctx.strokeStyle = '#10b981';
+            ctx.strokeRect(tx(0), ty(0.06), Math.max(4, tx(0.5) - tx(0)), ty(0) - ty(0.06));
+
+            // Trajectory trail
+            if (history.length > 1) {
+                ctx.save();
+                ctx.shadowColor = '#10b981';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.strokeStyle = '#34d399';
+                ctx.lineWidth = 2.2;
+                history.forEach((pt, idx) => {
+                    const x = tx(Math.min(maxD, pt[0]));
+                    const y = ty(Math.min(maxV, pt[1]));
+                    if (idx === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Current craft marker
+            if (curD !== undefined && curV !== undefined) {
+                const cx = tx(Math.min(maxD, curD));
+                const cy = ty(Math.min(maxV, curV));
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.getElementById('rl-modal').style.display = 'none';
+        });
+
+        setInterval(fetchTelemetry, 40);
+    </script>
+</body>
+</html>

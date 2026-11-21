@@ -1,0 +1,60 @@
+{
+  "total_episodes": 10000,
+  "scenarios": {
+    "rk4_standard": {
+      "label": "1. Saf RK4 CW (Standart)",
+      "episodes": 3000,
+      "success_count": 3000,
+      "crash_count": 0,
+      "hover_count": 0,
+      "success_rate": 100.0,
+      "crash_rate": 0.0,
+      "hover_rate": 0.0,
+      "ci_95": [
+        99.872,
+        100.0
+      ]
+    },
+    "delayed_800km": {
+      "label": "2. 800km \u0130rtifa + 0.5s Gecikme + %70 \u0130tki",
+      "episodes": 3500,
+      "success_count": 3499,
+      "crash_count": 0,
+      "hover_count": 1,
+      "success_rate": 99.971,
+      "crash_rate": 0.0,
+      "hover_rate": 0.029,
+      "ci_95": [
+        99.838,
+        99.995
+      ]
+    },
+    "extreme_dr": {
+      "label": "3. Ekstrem (30-50m, \u00b17m, Ters H\u0131z + \u00b1%25 DR)",
+      "episodes": 3500,
+      "success_count": 3500,
+      "crash_count": 0,
+      "hover_count": 0,
+      "success_rate": 100.0,
+      "crash_rate": 0.0,
+      "hover_rate": 0.0,
+      "ci_95": [
+        99.89,
+        100.0
+      ]
+    }
+  },
+  "duration_seconds": 7827.12,
+  "overall": {
+    "success_count": 9999,
+    "crash_count": 0,
+    "hover_count": 1,
+    "success_rate": 99.99,
+    "crash_rate": 0.0,
+    "hover_rate": 0.01,
+    "ci_95": [
+      99.943,
+      99.998
+    ]
+  }
+}

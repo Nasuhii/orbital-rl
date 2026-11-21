@@ -29,24 +29,37 @@ except ImportError:
 
 
 class DomainRandomizedMujocoEnv(gym.Wrapper):
-    """Domain Randomization Eklenmiş MuJoCo Gymnasium Sarmalayıcısı"""
+    """Domain Randomization Eklenmiş MuJoCo Gymnasium Sarmalayıcısı (Bug-Fixed & Sızıntısız)"""
     def __init__(self, env):
         super().__init__(env)
         self.nominal_mass = CONFIG.chaser_mass
         self.nominal_thrust = CONFIG.max_thrust
+        self._base_body_mass = self.env.model.body_mass.copy()
+        self._base_body_inertia = self.env.model.body_inertia.copy()
 
     def reset(self, **kwargs):
+        import mujoco
         obs, info = self.env.reset(**kwargs)
-        
-        # 1. Kütle Rastgeleleştirme: %10 dalgalanma
-        mass_factor = np.random.uniform(0.90, 1.10)
+
+        # 1. Gerçek MuJoCo Kütle & Atalet Rastgeleleştirme: ±%15 (qpos/qvel korunarak!)
+        mass_factor = float(np.random.uniform(0.85, 1.15))
+        saved_qpos = self.env.data.qpos.copy()
+        saved_qvel = self.env.data.qvel.copy()
         self.env.m = self.nominal_mass * mass_factor
-        
-        # 2. İtki Verim Dalgalanması: %15 dalgalanma
-        thrust_factor = np.random.uniform(0.85, 1.15)
+        cid = self.env.chaser_body_id
+        self.env.model.body_mass[cid] = self._base_body_mass[cid] * mass_factor
+        self.env.model.body_inertia[cid] = self._base_body_inertia[cid] * mass_factor
+        mujoco.mj_setConst(self.env.model, self.env.data)
+        self.env.data.qpos[:] = saved_qpos
+        self.env.data.qvel[:] = saved_qvel
+        mujoco.mj_forward(self.env.model, self.env.data)
+        obs = self.env._get_obs()
+
+        # 2. İtki Verim Dalgalanması: ±%15
+        thrust_factor = float(np.random.uniform(0.85, 1.15))
         self.env.max_thrust = self.nominal_thrust * thrust_factor
-        
-        # 3. Sensör Gürültüsü Enjeksiyonu
+
+        # 3. Sızıntısız Sensör Gürültüsü Enjeksiyonu
         noisy_obs = self._apply_sensor_noise(obs)
         return noisy_obs, info
 
@@ -61,6 +74,10 @@ class DomainRandomizedMujocoEnv(gym.Wrapper):
         noisy[0:3] += np.random.normal(0.0, 0.02, size=3).astype(np.float32)
         # Hız gürültüsü: sigma = 5 mm/s (0.005 m/s)
         noisy[3:6] += np.random.normal(0.0, 0.005, size=3).astype(np.float32)
+        # Sızıntıyı kapat: coriolis, dist ve speed gürültülü veriden yeniden hesaplanır!
+        noisy[6] = np.float32(-2.0 * self.env.n * noisy[3])
+        noisy[7] = np.float32(np.linalg.norm(noisy[0:3]))
+        noisy[8] = np.float32(np.linalg.norm(noisy[3:6]))
         return noisy
 
 

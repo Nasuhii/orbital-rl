@@ -1,0 +1,520 @@
+{
+  "model_name": "Champion-PPO v4 (Terminal PWPF+CBF Fine-Tuned + Anti-Hover)",
+  "total_timesteps": 1400000,
+  "evaluation_episodes": 50,
+  "success_rate": 100.0,
+  "crash_rate": 0.0,
+  "hover_rate": 0.0,
+  "success_count": 50,
+  "crash_count": 0,
+  "hover_count": 0,
+  "mean_final_distance": 0.128618,
+  "std_final_distance": 0.006055301478869571,
+  "mean_final_speed": 0.043016,
+  "std_final_speed": 0.004305037049782499,
+  "mean_delta_v": 1.57074,
+  "std_delta_v": 0.2918454255252256,
+  "target_met": true,
+  "pure_modes_summary": {
+    "pure_raw": {
+      "mode": "pure_raw",
+      "evaluation_episodes": 50,
+      "success_rate": 100.0,
+      "crash_rate": 0.0,
+      "hover_rate": 0.0,
+      "success_count": 50,
+      "crash_count": 0,
+      "hover_count": 0,
+      "mean_final_distance": 0.12858199999999997,
+      "std_final_distance": 0.006265642504963079,
+      "mean_final_speed": 0.042718000000000006,
+      "std_final_speed": 3.841874542459552e-05,
+      "mean_delta_v": 0.61562,
+      "std_delta_v": 0.03606266213135133
+    },
+    "pure_pwpf": {
+      "mode": "pure_pwpf",
+      "evaluation_episodes": 50,
+      "success_rate": 100.0,
+      "crash_rate": 0.0,
+      "hover_rate": 0.0,
+      "success_count": 50,
+      "crash_count": 0,
+      "hover_count": 0,
+      "mean_final_distance": 0.13038,
+      "std_final_distance": 0.005492467569317093,
+      "mean_final_speed": 0.040052,
+      "std_final_speed": 0.01011490464611506,
+      "mean_delta_v": 1.6205,
+      "std_delta_v": 0.29892997507777636
+    },
+    "pure_cbf_pwpf": {
+      "mode": "pure_cbf_pwpf",
+      "evaluation_episodes": 50,
+      "success_rate": 100.0,
+      "crash_rate": 0.0,
+      "hover_rate": 0.0,
+      "success_count": 50,
+      "crash_count": 0,
+      "hover_count": 0,
+      "mean_final_distance": 0.128618,
+      "std_final_distance": 0.006055301478869571,
+      "mean_final_speed": 0.043016,
+      "std_final_speed": 0.004305037049782499,
+      "mean_delta_v": 1.57074,
+      "std_delta_v": 0.2918454255252256
+    }
+  },
+  "detailed_results": [
+    {
+      "flight_id": 1,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1235,
+      "final_speed": 0.0439,
+      "delta_v": 1.527,
+      "duration": 101.5
+    },
+    {
+      "flight_id": 2,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1352,
+      "final_speed": 0.0479,
+      "delta_v": 2.413,
+      "duration": 96.5
+    },
+    {
+      "flight_id": 3,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1238,
+      "final_speed": 0.0445,
+      "delta_v": 1.727,
+      "duration": 100.0
+    },
+    {
+      "flight_id": 4,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.123,
+      "final_speed": 0.0448,
+      "delta_v": 1.544,
+      "duration": 93.0
+    },
+    {
+      "flight_id": 5,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1183,
+      "final_speed": 0.0457,
+      "delta_v": 1.444,
+      "duration": 91.0
+    },
+    {
+      "flight_id": 6,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1318,
+      "final_speed": 0.0421,
+      "delta_v": 1.575,
+      "duration": 101.5
+    },
+    {
+      "flight_id": 7,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1272,
+      "final_speed": 0.0432,
+      "delta_v": 1.052,
+      "duration": 89.5
+    },
+    {
+      "flight_id": 8,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1306,
+      "final_speed": 0.0435,
+      "delta_v": 1.676,
+      "duration": 89.5
+    },
+    {
+      "flight_id": 9,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1274,
+      "final_speed": 0.0404,
+      "delta_v": 1.258,
+      "duration": 85.5
+    },
+    {
+      "flight_id": 10,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1326,
+      "final_speed": 0.0436,
+      "delta_v": 1.729,
+      "duration": 99.5
+    },
+    {
+      "flight_id": 11,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1298,
+      "final_speed": 0.0452,
+      "delta_v": 2.027,
+      "duration": 93.5
+    },
+    {
+      "flight_id": 12,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1228,
+      "final_speed": 0.0444,
+      "delta_v": 1.748,
+      "duration": 92.0
+    },
+    {
+      "flight_id": 13,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1327,
+      "final_speed": 0.0457,
+      "delta_v": 1.892,
+      "duration": 89.0
+    },
+    {
+      "flight_id": 14,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1201,
+      "final_speed": 0.0432,
+      "delta_v": 1.897,
+      "duration": 103.0
+    },
+    {
+      "flight_id": 15,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1333,
+      "final_speed": 0.043,
+      "delta_v": 1.412,
+      "duration": 103.5
+    },
+    {
+      "flight_id": 16,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1348,
+      "final_speed": 0.0463,
+      "delta_v": 1.655,
+      "duration": 91.0
+    },
+    {
+      "flight_id": 17,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1258,
+      "final_speed": 0.04,
+      "delta_v": 1.759,
+      "duration": 84.5
+    },
+    {
+      "flight_id": 18,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1231,
+      "final_speed": 0.0443,
+      "delta_v": 2.347,
+      "duration": 96.5
+    },
+    {
+      "flight_id": 19,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.137,
+      "final_speed": 0.0421,
+      "delta_v": 1.458,
+      "duration": 97.5
+    },
+    {
+      "flight_id": 20,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1279,
+      "final_speed": 0.0429,
+      "delta_v": 1.723,
+      "duration": 104.5
+    },
+    {
+      "flight_id": 21,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1279,
+      "final_speed": 0.046,
+      "delta_v": 1.172,
+      "duration": 97.0
+    },
+    {
+      "flight_id": 22,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.136,
+      "final_speed": 0.0427,
+      "delta_v": 1.867,
+      "duration": 94.5
+    },
+    {
+      "flight_id": 23,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1271,
+      "final_speed": 0.0443,
+      "delta_v": 1.399,
+      "duration": 98.5
+    },
+    {
+      "flight_id": 24,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1248,
+      "final_speed": 0.0449,
+      "delta_v": 1.292,
+      "duration": 96.0
+    },
+    {
+      "flight_id": 25,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1269,
+      "final_speed": 0.0445,
+      "delta_v": 1.95,
+      "duration": 102.5
+    },
+    {
+      "flight_id": 26,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.139,
+      "final_speed": 0.0487,
+      "delta_v": 1.683,
+      "duration": 84.5
+    },
+    {
+      "flight_id": 27,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1198,
+      "final_speed": 0.0446,
+      "delta_v": 1.476,
+      "duration": 102.5
+    },
+    {
+      "flight_id": 28,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1381,
+      "final_speed": 0.0168,
+      "delta_v": 1.402,
+      "duration": 90.5
+    },
+    {
+      "flight_id": 29,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1393,
+      "final_speed": 0.0394,
+      "delta_v": 1.286,
+      "duration": 86.5
+    },
+    {
+      "flight_id": 30,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1363,
+      "final_speed": 0.0484,
+      "delta_v": 1.332,
+      "duration": 88.5
+    },
+    {
+      "flight_id": 31,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1183,
+      "final_speed": 0.0453,
+      "delta_v": 1.037,
+      "duration": 91.5
+    },
+    {
+      "flight_id": 32,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1308,
+      "final_speed": 0.0424,
+      "delta_v": 1.468,
+      "duration": 98.0
+    },
+    {
+      "flight_id": 33,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1204,
+      "final_speed": 0.0414,
+      "delta_v": 1.834,
+      "duration": 97.0
+    },
+    {
+      "flight_id": 34,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1268,
+      "final_speed": 0.0436,
+      "delta_v": 1.395,
+      "duration": 90.5
+    },
+    {
+      "flight_id": 35,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.119,
+      "final_speed": 0.0452,
+      "delta_v": 1.737,
+      "duration": 96.0
+    },
+    {
+      "flight_id": 36,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1304,
+      "final_speed": 0.0394,
+      "delta_v": 1.249,
+      "duration": 85.0
+    },
+    {
+      "flight_id": 37,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1243,
+      "final_speed": 0.0389,
+      "delta_v": 1.563,
+      "duration": 84.5
+    },
+    {
+      "flight_id": 38,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.133,
+      "final_speed": 0.0424,
+      "delta_v": 1.431,
+      "duration": 88.0
+    },
+    {
+      "flight_id": 39,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1173,
+      "final_speed": 0.046,
+      "delta_v": 1.611,
+      "duration": 97.0
+    },
+    {
+      "flight_id": 40,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1273,
+      "final_speed": 0.0434,
+      "delta_v": 1.526,
+      "duration": 90.0
+    },
+    {
+      "flight_id": 41,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1375,
+      "final_speed": 0.0427,
+      "delta_v": 1.828,
+      "duration": 89.0
+    },
+    {
+      "flight_id": 42,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1326,
+      "final_speed": 0.0445,
+      "delta_v": 1.023,
+      "duration": 92.0
+    },
+    {
+      "flight_id": 43,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1258,
+      "final_speed": 0.0426,
+      "delta_v": 1.62,
+      "duration": 94.5
+    },
+    {
+      "flight_id": 44,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1344,
+      "final_speed": 0.0406,
+      "delta_v": 1.608,
+      "duration": 94.5
+    },
+    {
+      "flight_id": 45,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1257,
+      "final_speed": 0.0421,
+      "delta_v": 1.111,
+      "duration": 101.0
+    },
+    {
+      "flight_id": 46,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1357,
+      "final_speed": 0.0419,
+      "delta_v": 1.509,
+      "duration": 98.5
+    },
+    {
+      "flight_id": 47,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1219,
+      "final_speed": 0.0427,
+      "delta_v": 1.531,
+      "duration": 86.5
+    },
+    {
+      "flight_id": 48,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1268,
+      "final_speed": 0.0436,
+      "delta_v": 1.768,
+      "duration": 87.5
+    },
+    {
+      "flight_id": 49,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1307,
+      "final_speed": 0.0429,
+      "delta_v": 1.295,
+      "duration": 88.0
+    },
+    {
+      "flight_id": 50,
+      "success": true,
+      "crashed": false,
+      "final_distance": 0.1363,
+      "final_speed": 0.0422,
+      "delta_v": 1.671,
+      "duration": 96.0
+    }
+  ]
+}

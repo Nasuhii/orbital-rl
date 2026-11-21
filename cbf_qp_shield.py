@@ -17,8 +17,8 @@ class MujocoCBFQPShield:
         self,
         mass=CONFIG.chaser_mass,
         max_thrust=CONFIG.max_thrust,
-        alpha=1.4,                       # Bariyer gevşeme parametresi (1/s)
-        safety_margin_pct=0.15,          # %15 Güvenlik marjı
+        alpha=1.8,                       # Bariyer gevşeme parametresi (1/s)
+        safety_margin_pct=0.10,          # %10 Güvenlik marjı (0.054 m/s tavan)
         v_dock_limit=CONFIG.max_docking_speed, # 0.06 m/s
         v_approach_max=0.40,             # 0.40 m/s yaklaşma koridor tavanı
         d_brake=5.0                      # Frenleme yarıçapı (metre)

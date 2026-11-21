@@ -19,11 +19,11 @@ class PWPFModulator3Axis:
         self,
         dt=0.5,
         Km=1.0,
-        Tm=1.2,                # Filtre zaman sabiti (MuJoCo dt=0.5s için optimize)
-        U_on=0.20,             # Açılma eşiği (%20 komut)
-        U_off=0.08,            # Kapanma eşiği (%8 komut)
+        Tm=0.8,                # Filtre zaman sabiti (MuJoCo dt=0.5s için hızlı terminal tepki)
+        U_on=0.12,             # Açılma eşiği (%12 komut - yakın mesafe ölü bandı azaltıldı)
+        U_off=0.04,            # Kapanma eşiği (%4 komut)
         max_thrust=15.0,
-        action_rate_limit=0.40 # Adım başına izin verilen maksimum komut değişimi
+        action_rate_limit=0.50 # Adım başına izin verilen maksimum komut değişimi
     ):
         self.dt = dt
         self.Km = Km

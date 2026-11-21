@@ -1,0 +1,819 @@
+{
+  "elapsed_seconds": 228.68,
+  "total_timesteps_executed": 483328,
+  "best_ood_step": 480000,
+  "best_ood_composite": 16.04,
+  "bc_only_ood": {
+    "ood_success_rate": 29.2,
+    "ood_crash_rate": 58.3,
+    "ood_mean_dv": 3.08,
+    "composite_score": -93.56,
+    "breakdown": {
+      "mass_fault": {
+        "success_rate": 33.3,
+        "crash_rate": 66.7,
+        "mean_dv": 1.75
+      },
+      "noise_delay": {
+        "success_rate": 33.3,
+        "crash_rate": 50.0,
+        "mean_dv": 4.74
+      },
+      "escape": {
+        "success_rate": 33.3,
+        "crash_rate": 50.0,
+        "mean_dv": 2.67
+      },
+      "flyaround": {
+        "success_rate": 16.7,
+        "crash_rate": 66.7,
+        "mean_dv": 3.16
+      }
+    }
+  },
+  "eval_history": [
+    {
+      "timestep": 48000,
+      "ood_success_rate": 41.7,
+      "ood_crash_rate": 54.2,
+      "ood_mean_dv": 2.42,
+      "composite_score": -71.54,
+      "actor_drift_from_bc": 0.0243,
+      "action_std": [
+        0.334,
+        0.334,
+        0.332
+      ],
+      "critic_ev": 0.8025,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 50.0,
+          "crash_rate": 33.3,
+          "mean_dv": 2.35
+        },
+        "noise_delay": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.23
+        },
+        "escape": {
+          "success_rate": 16.7,
+          "crash_rate": 83.3,
+          "mean_dv": 2.58
+        },
+        "flyaround": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.54
+        }
+      }
+    },
+    {
+      "timestep": 96000,
+      "ood_success_rate": 50.0,
+      "ood_crash_rate": 45.8,
+      "ood_mean_dv": 2.56,
+      "composite_score": -46.72,
+      "actor_drift_from_bc": 0.03505,
+      "action_std": [
+        0.334,
+        0.335,
+        0.334
+      ],
+      "critic_ev": 0.8157,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 1.05
+        },
+        "noise_delay": {
+          "success_rate": 33.3,
+          "crash_rate": 50.0,
+          "mean_dv": 4.04
+        },
+        "escape": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.56
+        },
+        "flyaround": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.61
+        }
+      }
+    },
+    {
+      "timestep": 144000,
+      "ood_success_rate": 54.2,
+      "ood_crash_rate": 37.5,
+      "ood_mean_dv": 2.85,
+      "composite_score": -26.5,
+      "actor_drift_from_bc": 0.04163,
+      "action_std": [
+        0.329,
+        0.338,
+        0.328
+      ],
+      "critic_ev": 0.8396,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 33.3,
+          "crash_rate": 33.3,
+          "mean_dv": 3.15
+        },
+        "noise_delay": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 3.1
+        },
+        "escape": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 2.49
+        },
+        "flyaround": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.66
+        }
+      }
+    },
+    {
+      "timestep": 192000,
+      "ood_success_rate": 29.2,
+      "ood_crash_rate": 66.7,
+      "ood_mean_dv": 2.68,
+      "composite_score": -109.56,
+      "actor_drift_from_bc": 0.05964,
+      "action_std": [
+        0.329,
+        0.336,
+        0.328
+      ],
+      "critic_ev": 0.8672,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.51
+        },
+        "noise_delay": {
+          "success_rate": 33.3,
+          "crash_rate": 50.0,
+          "mean_dv": 3.25
+        },
+        "escape": {
+          "success_rate": 16.7,
+          "crash_rate": 83.3,
+          "mean_dv": 2.41
+        },
+        "flyaround": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.56
+        }
+      }
+    },
+    {
+      "timestep": 240000,
+      "ood_success_rate": 41.7,
+      "ood_crash_rate": 54.2,
+      "ood_mean_dv": 2.43,
+      "composite_score": -71.56,
+      "actor_drift_from_bc": 0.05831,
+      "action_std": [
+        0.326,
+        0.333,
+        0.328
+      ],
+      "critic_ev": 0.8986,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 33.3,
+          "crash_rate": 50.0,
+          "mean_dv": 2.36
+        },
+        "noise_delay": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.45
+        },
+        "escape": {
+          "success_rate": 16.7,
+          "crash_rate": 83.3,
+          "mean_dv": 2.43
+        },
+        "flyaround": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.5
+        }
+      }
+    },
+    {
+      "timestep": 288000,
+      "ood_success_rate": 50.0,
+      "ood_crash_rate": 50.0,
+      "ood_mean_dv": 2.13,
+      "composite_score": -54.26,
+      "actor_drift_from_bc": 0.06042,
+      "action_std": [
+        0.324,
+        0.331,
+        0.325
+      ],
+      "critic_ev": 0.8897,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 1.19
+        },
+        "noise_delay": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.49
+        },
+        "escape": {
+          "success_rate": 33.3,
+          "crash_rate": 66.7,
+          "mean_dv": 2.36
+        },
+        "flyaround": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.46
+        }
+      }
+    },
+    {
+      "timestep": 336000,
+      "ood_success_rate": 66.7,
+      "ood_crash_rate": 33.3,
+      "ood_mean_dv": 2.14,
+      "composite_score": -4.18,
+      "actor_drift_from_bc": 0.06748,
+      "action_std": [
+        0.32,
+        0.33,
+        0.323
+      ],
+      "critic_ev": 0.8804,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 1.21
+        },
+        "noise_delay": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 2.53
+        },
+        "escape": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.37
+        },
+        "flyaround": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.46
+        }
+      }
+    },
+    {
+      "timestep": 384000,
+      "ood_success_rate": 62.5,
+      "ood_crash_rate": 37.5,
+      "ood_mean_dv": 2.11,
+      "composite_score": -16.72,
+      "actor_drift_from_bc": 0.06735,
+      "action_std": [
+        0.32,
+        0.328,
+        0.321
+      ],
+      "critic_ev": 0.893,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 1.15
+        },
+        "noise_delay": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.5
+        },
+        "escape": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.43
+        },
+        "flyaround": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.36
+        }
+      }
+    },
+    {
+      "timestep": 432000,
+      "ood_success_rate": 62.5,
+      "ood_crash_rate": 37.5,
+      "ood_mean_dv": 2.05,
+      "composite_score": -16.6,
+      "actor_drift_from_bc": 0.06537,
+      "action_std": [
+        0.319,
+        0.325,
+        0.32
+      ],
+      "critic_ev": 0.8583,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 83.3,
+          "crash_rate": 16.7,
+          "mean_dv": 1.13
+        },
+        "noise_delay": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.39
+        },
+        "escape": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.3
+        },
+        "flyaround": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.38
+        }
+      }
+    },
+    {
+      "timestep": 480000,
+      "ood_success_rate": 70.8,
+      "ood_crash_rate": 25.0,
+      "ood_mean_dv": 2.38,
+      "composite_score": 16.04,
+      "actor_drift_from_bc": 0.06598,
+      "action_std": [
+        0.318,
+        0.325,
+        0.321
+      ],
+      "critic_ev": 0.8826,
+      "breakdown": {
+        "mass_fault": {
+          "success_rate": 100.0,
+          "crash_rate": 0.0,
+          "mean_dv": 1.42
+        },
+        "noise_delay": {
+          "success_rate": 66.7,
+          "crash_rate": 16.7,
+          "mean_dv": 3.36
+        },
+        "escape": {
+          "success_rate": 50.0,
+          "crash_rate": 50.0,
+          "mean_dv": 2.41
+        },
+        "flyaround": {
+          "success_rate": 66.7,
+          "crash_rate": 33.3,
+          "mean_dv": 2.34
+        }
+      }
+    }
+  ],
+  "best_model_path": "/mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian Vault/Areas/Software/orbital-rl/models/ppo_mujoco_champion_v5_best_ood.zip",
+  "final_model_path": "/mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian Vault/Areas/Software/orbital-rl/models/ppo_mujoco_champion_v5_final.zip",
+  "stage2_v51": {
+    "elapsed_seconds": 173.27,
+    "total_timesteps": 963328,
+    "best_ood_step": 912000,
+    "best_ood_composite": 82.34,
+    "eval_history": [
+      {
+        "timestep": 528000,
+        "ood_success_rate": 62.5,
+        "ood_crash_rate": 37.5,
+        "ood_mean_dv": 2.07,
+        "composite_score": -16.64,
+        "actor_drift_from_bc": 0.01067,
+        "action_std": [
+          0.319,
+          0.324,
+          0.319
+        ],
+        "critic_ev": 0.8272,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.14
+          },
+          "noise_delay": {
+            "success_rate": 50.0,
+            "crash_rate": 50.0,
+            "mean_dv": 2.47
+          },
+          "escape": {
+            "success_rate": 50.0,
+            "crash_rate": 50.0,
+            "mean_dv": 2.3
+          },
+          "flyaround": {
+            "success_rate": 50.0,
+            "crash_rate": 50.0,
+            "mean_dv": 2.36
+          }
+        }
+      },
+      {
+        "timestep": 576000,
+        "ood_success_rate": 62.5,
+        "ood_crash_rate": 37.5,
+        "ood_mean_dv": 2.13,
+        "composite_score": -16.76,
+        "actor_drift_from_bc": 0.01717,
+        "action_std": [
+          0.316,
+          0.321,
+          0.316
+        ],
+        "critic_ev": 0.8464,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 83.3,
+            "crash_rate": 16.7,
+            "mean_dv": 1.18
+          },
+          "noise_delay": {
+            "success_rate": 50.0,
+            "crash_rate": 50.0,
+            "mean_dv": 2.58
+          },
+          "escape": {
+            "success_rate": 66.7,
+            "crash_rate": 33.3,
+            "mean_dv": 2.49
+          },
+          "flyaround": {
+            "success_rate": 50.0,
+            "crash_rate": 50.0,
+            "mean_dv": 2.27
+          }
+        }
+      },
+      {
+        "timestep": 624000,
+        "ood_success_rate": 83.3,
+        "ood_crash_rate": 16.7,
+        "ood_mean_dv": 2.12,
+        "composite_score": 45.66,
+        "actor_drift_from_bc": 0.01969,
+        "action_std": [
+          0.313,
+          0.319,
+          0.315
+        ],
+        "critic_ev": 0.8181,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.16
+          },
+          "noise_delay": {
+            "success_rate": 83.3,
+            "crash_rate": 16.7,
+            "mean_dv": 2.76
+          },
+          "escape": {
+            "success_rate": 83.3,
+            "crash_rate": 16.7,
+            "mean_dv": 2.03
+          },
+          "flyaround": {
+            "success_rate": 66.7,
+            "crash_rate": 33.3,
+            "mean_dv": 2.52
+          }
+        }
+      },
+      {
+        "timestep": 672000,
+        "ood_success_rate": 62.5,
+        "ood_crash_rate": 25.0,
+        "ood_mean_dv": 2.63,
+        "composite_score": 7.24,
+        "actor_drift_from_bc": 0.02602,
+        "action_std": [
+          0.309,
+          0.315,
+          0.315
+        ],
+        "critic_ev": 0.8329,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 83.3,
+            "crash_rate": 16.7,
+            "mean_dv": 1.06
+          },
+          "noise_delay": {
+            "success_rate": 33.3,
+            "crash_rate": 16.7,
+            "mean_dv": 5.08
+          },
+          "escape": {
+            "success_rate": 66.7,
+            "crash_rate": 33.3,
+            "mean_dv": 2.08
+          },
+          "flyaround": {
+            "success_rate": 66.7,
+            "crash_rate": 33.3,
+            "mean_dv": 2.29
+          }
+        }
+      },
+      {
+        "timestep": 720000,
+        "ood_success_rate": 91.7,
+        "ood_crash_rate": 4.2,
+        "ood_mean_dv": 2.35,
+        "composite_score": 78.6,
+        "actor_drift_from_bc": 0.02679,
+        "action_std": [
+          0.307,
+          0.314,
+          0.313
+        ],
+        "critic_ev": 0.8315,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.09
+          },
+          "noise_delay": {
+            "success_rate": 66.7,
+            "crash_rate": 16.7,
+            "mean_dv": 4.01
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.89
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.42
+          }
+        }
+      },
+      {
+        "timestep": 768000,
+        "ood_success_rate": 87.5,
+        "ood_crash_rate": 4.2,
+        "ood_mean_dv": 2.46,
+        "composite_score": 74.18,
+        "actor_drift_from_bc": 0.03113,
+        "action_std": [
+          0.306,
+          0.315,
+          0.31
+        ],
+        "critic_ev": 0.8285,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.2
+          },
+          "noise_delay": {
+            "success_rate": 50.0,
+            "crash_rate": 16.7,
+            "mean_dv": 4.3
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.98
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.35
+          }
+        }
+      },
+      {
+        "timestep": 816000,
+        "ood_success_rate": 91.7,
+        "ood_crash_rate": 4.2,
+        "ood_mean_dv": 2.4,
+        "composite_score": 78.5,
+        "actor_drift_from_bc": 0.03416,
+        "action_std": [
+          0.304,
+          0.312,
+          0.309
+        ],
+        "critic_ev": 0.8643,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.11
+          },
+          "noise_delay": {
+            "success_rate": 66.7,
+            "crash_rate": 16.7,
+            "mean_dv": 4.14
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.97
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.41
+          }
+        }
+      },
+      {
+        "timestep": 864000,
+        "ood_success_rate": 87.5,
+        "ood_crash_rate": 8.3,
+        "ood_mean_dv": 2.34,
+        "composite_score": 66.22,
+        "actor_drift_from_bc": 0.03171,
+        "action_std": [
+          0.304,
+          0.31,
+          0.308
+        ],
+        "critic_ev": 0.8701,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.22
+          },
+          "noise_delay": {
+            "success_rate": 50.0,
+            "crash_rate": 33.3,
+            "mean_dv": 4.09
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.84
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.22
+          }
+        }
+      },
+      {
+        "timestep": 912000,
+        "ood_success_rate": 87.5,
+        "ood_crash_rate": 0.0,
+        "ood_mean_dv": 2.58,
+        "composite_score": 82.34,
+        "actor_drift_from_bc": 0.03244,
+        "action_std": [
+          0.303,
+          0.31,
+          0.307
+        ],
+        "critic_ev": 0.8689,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.21
+          },
+          "noise_delay": {
+            "success_rate": 50.0,
+            "crash_rate": 0.0,
+            "mean_dv": 5.06
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.81
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.24
+          }
+        }
+      },
+      {
+        "timestep": 960000,
+        "ood_success_rate": 91.7,
+        "ood_crash_rate": 8.3,
+        "ood_mean_dv": 2.24,
+        "composite_score": 70.62,
+        "actor_drift_from_bc": 0.03276,
+        "action_std": [
+          0.303,
+          0.309,
+          0.307
+        ],
+        "critic_ev": 0.8244,
+        "breakdown": {
+          "mass_fault": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 1.07
+          },
+          "noise_delay": {
+            "success_rate": 66.7,
+            "crash_rate": 33.3,
+            "mean_dv": 3.6
+          },
+          "escape": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.03
+          },
+          "flyaround": {
+            "success_rate": 100.0,
+            "crash_rate": 0.0,
+            "mean_dv": 2.26
+          }
+        }
+      }
+    ]
+  },
+  "stage3_v52_s3": {
+    "elapsed_seconds": 140.25,
+    "total_timesteps": 1072000,
+    "best_ood_step": 912000,
+    "best_ood_composite": 79.75,
+    "eval_history": [
+      {
+        "step": 944000,
+        "s3_raw": 70.0,
+        "s3_raw_crash": 20.0,
+        "s3_cbf": 55.0,
+        "s2_raw": 90.0,
+        "s5_raw": 90.0,
+        "score": 36.25
+      },
+      {
+        "step": 976000,
+        "s3_raw": 70.0,
+        "s3_raw_crash": 15.0,
+        "s3_cbf": 65.0,
+        "s2_raw": 90.0,
+        "s5_raw": 100.0,
+        "score": 58.25
+      },
+      {
+        "step": 1008000,
+        "s3_raw": 60.0,
+        "s3_raw_crash": 15.0,
+        "s3_cbf": 45.0,
+        "s2_raw": 100.0,
+        "s5_raw": 80.0,
+        "score": 47.25
+      },
+      {
+        "step": 1040000,
+        "s3_raw": 40.0,
+        "s3_raw_crash": 20.0,
+        "s3_cbf": 35.0,
+        "s2_raw": 100.0,
+        "s5_raw": 80.0,
+        "score": 29.75
+      },
+      {
+        "step": 1072000,
+        "s3_raw": 5.0,
+        "s3_raw_crash": 5.0,
+        "s3_cbf": 0.0,
+        "s2_raw": 100.0,
+        "s5_raw": 100.0,
+        "score": 26.25
+      }
+    ]
+  }
+}

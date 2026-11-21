@@ -1,0 +1,28 @@
+{
+  "training_steps": 1000000,
+  "training_seconds": 314.84,
+  "promoted_to_champion": true,
+  "ood_before": {
+    "episodes": 100,
+    "success_rate": 100.0,
+    "crash_rate": 0.0,
+    "hover_rate": 0.0,
+    "success_count": 100,
+    "crash_count": 0,
+    "hover_count": 0
+  },
+  "ood_after": {
+    "episodes": 100,
+    "success_rate": 100.0,
+    "crash_rate": 0.0,
+    "hover_rate": 0.0,
+    "success_count": 100,
+    "crash_count": 0,
+    "hover_count": 0
+  },
+  "standard_after": {
+    "pure_raw": 100.0,
+    "pure_pwpf": 100.0,
+    "pure_cbf_pwpf": 100.0
+  }
+}

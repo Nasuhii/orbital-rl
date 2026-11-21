@@ -38,6 +38,15 @@ def generate_all_telemetry(num_episodes=30):
     env = OrbitalMujocoEnv(max_steps=CONFIG.max_steps)
     cbf = MujocoCBFQPShield(safety_margin_pct=0.15)
 
+    champ_model = None
+    champ_path = os.path.join(os.path.dirname(__file__), "models", "ppo_mujoco_champion.zip")
+    if os.path.exists(champ_path) and HAS_SB3:
+        try:
+            champ_model = PPO.load(champ_path, device="cpu")
+            print(f"📦 Champion-PPO (700K) Modeli yüklendi: {champ_path}")
+        except Exception as e:
+            print(f"Champion-PPO yüklenemedi: {e}")
+
     ppo_model = None
     ppo_path = os.path.join(os.path.dirname(__file__), "models", "ppo_mujoco_dr_converged.zip")
     if os.path.exists(ppo_path) and HAS_SB3:
@@ -47,6 +56,7 @@ def generate_all_telemetry(num_episodes=30):
         except Exception as e:
             print(f"PPO yüklenemedi: {e}")
 
+    model_list = ["Champion-PPO", "Safe-GNC", "PPO-CBF", "Pure-PPO"]
     dataset = {
         "metadata": {
             "title": "MuJoCo Orbital Autonomous Docking Telemetry Dataset",
@@ -57,13 +67,13 @@ def generate_all_telemetry(num_episodes=30):
             "max_thrust": CONFIG.max_thrust,
             "mass": CONFIG.chaser_mass,
             "total_episodes": num_episodes,
-            "models": ["Safe-GNC", "PPO-CBF", "Pure-PPO"]
+            "models": model_list
         },
         "episodes": {}
     }
 
     # Model döngüsü
-    for model_name in ["Safe-GNC", "PPO-CBF", "Pure-PPO"]:
+    for model_name in model_list:
         dataset["episodes"][model_name] = []
         print(f"\n▶ Model: [{model_name}] için 30 uçuş simüle ediliyor...")
 
@@ -72,7 +82,7 @@ def generate_all_telemetry(num_episodes=30):
         crash_count = 0
 
         for ep in range(1, num_episodes + 1):
-            seed = 1000 + ep * 31
+            seed = 9000 + ep * 43
             obs, info = env.reset(seed=seed)
             pwpf = PWPFModulator3Axis(dt=CONFIG.dt, max_thrust=CONFIG.max_thrust)
             done, trunc = False, False
@@ -94,7 +104,16 @@ def generate_all_telemetry(num_episodes=30):
                 cbf_intervened = False
 
                 # 1. Model Davranış Mantığı
-                if model_name == "Safe-GNC":
+                if model_name == "Champion-PPO":
+                    if champ_model:
+                        act, _ = champ_model.predict(obs, deterministic=True)
+                        cmd_force = act * CONFIG.max_thrust
+                    else:
+                        cmd_force = np.zeros(3, dtype=np.float32)
+                    safe_force, _, cbf_intervened = cbf.filter_action(rel_pos, vel, cmd_force, env.n)
+                    mod_force, valves = pwpf.modulate(safe_force / CONFIG.max_thrust, distance=dist)
+
+                elif model_name == "Safe-GNC":
                     if dist > 1.8:
                         target_speed = min(0.40, 0.05 + 0.35 * np.tanh((dist - 1.0) / 4.5))
                     else:
@@ -189,6 +208,32 @@ def generate_all_telemetry(num_episodes=30):
 
                 obs, _, done, trunc, info = env.step(mod_force / CONFIG.max_thrust)
                 step_idx += 1
+
+                if done or trunc:
+                    rel_pos_end = obs[:3]
+                    vel_end = obs[3:6]
+                    dist_end = float(info['distance'])
+                    speed_end = float(info['speed'])
+                    lat_end = float(np.sqrt(rel_pos_end[0]**2 + rel_pos_end[2]**2))
+                    ang_end = float(np.arctan2(lat_end, abs(rel_pos_end[1]) + 1e-5) * (180.0 / np.pi))
+                    end_status = "LOCKED_DOCKED" if info.get("docked_success") else ("CRASHED" if info.get("crashed") else "HOVER_TIMEOUT")
+                    ep_steps.append({
+                        "t": round(step_idx * CONFIG.dt, 2),
+                        "pos": [round(float(rel_pos_end[0]), 4), round(float(rel_pos_end[1]), 4), round(float(rel_pos_end[2]), 4)],
+                        "vel": [round(float(vel_end[0]), 4), round(float(vel_end[1]), 4), round(float(vel_end[2]), 4)],
+                        "dist": round(dist_end, 4),
+                        "speed": round(speed_end, 4),
+                        "lat_err": round(lat_end, 4),
+                        "ang_err": round(ang_end, 2),
+                        "thrust_cmd": [0.0, 0.0, 0.0],
+                        "thrust_mod": [0.0, 0.0, 0.0],
+                        "valves": [0, 0, 0, 0, 0, 0],
+                        "cbf_h": round(float((cbf.get_v_safe(dist_end)**2) - (speed_end**2)), 4),
+                        "cbf_active": False,
+                        "cum_dv": round(cum_dv, 3),
+                        "fuel": round(fuel_rem, 3),
+                        "status": end_status
+                    })
 
             # Uçuş Sonucu
             if info["docked_success"]:

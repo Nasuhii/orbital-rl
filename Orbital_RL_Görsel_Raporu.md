@@ -90,7 +90,7 @@ Uzay araçları otonom kenetlenme (RPO) operasyonlarında NASA ve ESA standartla
 ## 🎮 5. İnteraktif 3D Web Simülatörü (Mission Control)
 
 Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüzü:
-- **Dosya:** [docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html)
+- **Dosya:** [docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html)
 - **Canlı Web Adresi:** `http://localhost:8000/Areas/Software/orbital-rl/docking_visualizer.html` 🌐
 - **Özellikler:** 
   - ⚡ **DUAL RACE Modu:** Yeşil (Asymptotic) ve Kırmızı (Naive) gemileri yan yana yarıştırarak donma patolojisini gözle görme.
@@ -102,19 +102,19 @@ Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüz
 
 ## 🛠️ 6. Kod Dosyaları Ne İşe Yarar?
 
-- **[orbital_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_env.py):** Uzay fiziğini (3D Clohessy-Wiltshire diferansiyel denklemleri) 4. derece Runge-Kutta (RK4) sayısal integratörü ile saniye saniye çözen Gymnasium ortamıdır.
-- **[reward_shaping.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/reward_shaping.py):** Ajanın hovering yapmasını engelleyen matematiksel ödül formüllerinin bulunduğu dosyadır.
-- **[simulate_demo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/simulate_demo.py):** İki ajanı aynı başlangıç noktasından başlatıp yarıştırır ve nominal görseli üretir.
-- **[stress_test_monte_carlo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/stress_test_monte_carlo.py):** Sensör gürültüsü, itici bozulması, yörüngesel şok ve kaçış rotasını içeren 30 uçuşluk Monte Carlo dayanıklılık stres testidir.
-- **[visualize_3d_flight.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/visualize_3d_flight.py):** 6 panelli derinlemesine 3D dinamik, faz portresi ve itki vektörü analiz grafiğini üretir.
-- **[docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html):** Three.js ile geliştirilen interaktif 3D Mission Control ve Dual Race web arayüzüdür.
-- **[train_ppo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo.py):** Stable-Baselines3 kütüphanesiyle PPO yapay zeka modelini eğiten eğitim kodudur.
-- **[train_ppo_pbrs.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_pbrs.py):** Ng et al. (1999) Potansiyel Bazlı Ödül Şekillendirme (PBRS) teorisiyle hovering açığını çözen PPO eğitim scriptidir.
-- **[train_ppo_mujoco.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_mujoco.py):** DeepMind MuJoCo fizik motoru ve Gymnasium v1.0+ üzerinde PPO ajanını eğiten scripttir.
-- **[run_rl_experiments.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/run_rl_experiments.py):** Naive RL, Shaped PPO, Safe CBF-QP ve MuJoCo modellerini 15 Monte Carlo uçuşunda yarıştırıp telemetri grafiklerini üreten master kıyaslama motorudur.
-- **[orbital_mujoco_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_mujoco_env.py):** MuJoCo rijit gövde temas fiziğini 3D Clohessy-Wiltshire kuvvetleriyle birleştiren resmi Gymnasium ortamıdır.
-- **[orbital_docking.xml](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_docking.xml):** Hedef istasyon, çıkıntılı dişi kenetlenme hunisi ve 6-DOF serbest eklemli (freejoint) kovalayıcı uzay aracı MuJoCo MJCF model tanımıdır.
-- **[evaluate_and_plot.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/evaluate_and_plot.py):** Farklı açılardan 8 ayrı uçuş testi yaparak başarı tablosunu ekrana basar.
+- **[orbital_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_env.py):** Uzay fiziğini (3D Clohessy-Wiltshire diferansiyel denklemleri) 4. derece Runge-Kutta (RK4) sayısal integratörü ile saniye saniye çözen Gymnasium ortamıdır.
+- **[reward_shaping.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/reward_shaping.py):** Ajanın hovering yapmasını engelleyen matematiksel ödül formüllerinin bulunduğu dosyadır.
+- **[simulate_demo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/simulate_demo.py):** İki ajanı aynı başlangıç noktasından başlatıp yarıştırır ve nominal görseli üretir.
+- **[stress_test_monte_carlo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/stress_test_monte_carlo.py):** Sensör gürültüsü, itici bozulması, yörüngesel şok ve kaçış rotasını içeren 30 uçuşluk Monte Carlo dayanıklılık stres testidir.
+- **[visualize_3d_flight.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/visualize_3d_flight.py):** 6 panelli derinlemesine 3D dinamik, faz portresi ve itki vektörü analiz grafiğini üretir.
+- **[docking_visualizer.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/docking_visualizer.html):** Three.js ile geliştirilen interaktif 3D Mission Control ve Dual Race web arayüzüdür.
+- **[train_ppo.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo.py):** Stable-Baselines3 kütüphanesiyle PPO yapay zeka modelini eğiten eğitim kodudur.
+- **[train_ppo_pbrs.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_pbrs.py):** Ng et al. (1999) Potansiyel Bazlı Ödül Şekillendirme (PBRS) teorisiyle hovering açığını çözen PPO eğitim scriptidir.
+- **[train_ppo_mujoco.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/train_ppo_mujoco.py):** DeepMind MuJoCo fizik motoru ve Gymnasium v1.0+ üzerinde PPO ajanını eğiten scripttir.
+- **[run_rl_experiments.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/run_rl_experiments.py):** Naive RL, Shaped PPO, Safe CBF-QP ve MuJoCo modellerini 15 Monte Carlo uçuşunda yarıştırıp telemetri grafiklerini üreten master kıyaslama motorudur.
+- **[orbital_mujoco_env.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_mujoco_env.py):** MuJoCo rijit gövde temas fiziğini 3D Clohessy-Wiltshire kuvvetleriyle birleştiren resmi Gymnasium ortamıdır.
+- **[orbital_docking.xml](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/orbital_docking.xml):** Hedef istasyon, çıkıntılı dişi kenetlenme hunisi ve 6-DOF serbest eklemli (freejoint) kovalayıcı uzay aracı MuJoCo MJCF model tanımıdır.
+- **[evaluate_and_plot.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/evaluate_and_plot.py):** Farklı açılardan 8 ayrı uçuş testi yaparak başarı tablosunu ekrana basar.
 
 ---
 
@@ -148,7 +148,7 @@ Tarayıcı üzerinden çalışan Three.js destekli canlı 3D simülasyon arayüz
 | **Integrated Safe-GNC (Master Mimari)**| **`%100.0`** 🟢 | **`%0.0`** 🟢 | **`%0.0`** 🟢 | **`0.94 m/s`** ⚡ | **`0.044 m/s`** 🟢 | **30'da 30 Başarı!** Tam yumuşak kenetlenme ($4.4\text{ cm/s} < 6.0\text{ cm/s}$). |
 
 - **CBF Müdahale Oranı:** `%9.0` (500 / 5562 adım).
-- **Komut Dosyası:** [run_monte_carlo_30_step6.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/run_monte_carlo_30_step6.py)
+- **Komut Dosyası:** [run_monte_carlo_30_step6.py](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/run_monte_carlo_30_step6.py)
 
 
 ---
@@ -190,7 +190,7 @@ MuJoCo MJCF modelinde gövde ağırlık merkezi ile kuvvet uygulama noktası ara
 
 Yeni nesil interaktif 3D Web arayüzü, artık tahmin veya basit JS yaklaşımlarıyla değil, doğrudan **MuJoCo fizik motorundan üretilen gerçek uçuş verileriyle** beslenmektedir:
 - **Canlı Web Adresi:** [`http://localhost:8000/Areas/Software/orbital-rl/index.html`](http://localhost:8000/Areas/Software/orbital-rl/index.html) 🌐
-- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
+- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
 
 ### 🌟 Yeni Eklenen Gelişmiş Özellikler:
 1. **🛰️ 30-Uçuş MuJoCo Oynatıcı (Dataset Replay):**
@@ -265,7 +265,7 @@ MuJoCo MJCF modelinde gövde ağırlık merkezi ile kuvvet uygulama noktası ara
 
 Yeni nesil interaktif 3D Web arayüzü, artık tahmin veya basit JS yaklaşımlarıyla değil, doğrudan **MuJoCo fizik motorundan üretilen gerçek uçuş verileriyle** beslenmektedir:
 - **Canlı Web Adresi:** [`http://localhost:8000/Areas/Software/orbital-rl/index.html`](http://localhost:8000/Areas/Software/orbital-rl/index.html) 🌐
-- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Documents/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
+- **Dosya:** [index.html](file:///mnt/E2E0836DE083472F/Users/Nasuhi/Belgelerim/Obsidian%20Vault/Areas/Software/orbital-rl/index.html)
 
 ### 🌟 Yeni Eklenen Gelişmiş Özellikler:
 1. **🛰️ 30-Uçuş MuJoCo Oynatıcı (Dataset Replay):**

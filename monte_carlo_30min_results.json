@@ -1,0 +1,40 @@
+{
+  "duration_seconds": 1843.27,
+  "total_episodes": 3200,
+  "overall": {
+    "success_rate": 99.8125,
+    "crash_rate": 0.0,
+    "hover_rate": 0.1875,
+    "ci_95": [
+      99.5915,
+      99.914
+    ],
+    "success_count": 3194,
+    "crash_count": 0,
+    "hover_count": 6
+  },
+  "nominal_cbf_pwpf": {
+    "episodes": 1600,
+    "success_rate": 99.625,
+    "crash_rate": 0.0,
+    "hover_rate": 0.375,
+    "ci_95": [
+      99.1842,
+      99.828
+    ],
+    "mean_final_distance": 0.13,
+    "mean_final_speed": 0.042
+  },
+  "dr_noisy_cbf_pwpf": {
+    "episodes": 1600,
+    "success_rate": 100.0,
+    "crash_rate": 0.0,
+    "hover_rate": 0.0,
+    "ci_95": [
+      99.7605,
+      100.0
+    ],
+    "mean_final_distance": 0.1299,
+    "mean_final_speed": 0.043
+  }
+}

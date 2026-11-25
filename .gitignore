@@ -2,6 +2,9 @@
 __pycache__/
 *.pyc
 *.pyo
+*.save
+*.save.*
+*.bak
 logs/
 models/
 .DS_Store
